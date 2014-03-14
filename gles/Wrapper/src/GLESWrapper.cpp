@@ -53,6 +53,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "../inc/GLESWrapper.h"
 //=================================================================
+namespace iv
+{
 /**
  * @brief Constructor : Initializes requested
  *
@@ -92,3 +94,5 @@ EGLint GLESWrapper::createWindow()
     createWindowX11();
     createEGLContext();
 }
+}
+ //End of namespcae vi

@@ -15,7 +15,7 @@
  *
  **/
 
-class CubeTexture : public GLESWrapper
+class CubeTexture : public iv::GLESWrapper
 {
     // GLESWrapper interface
 public:
@@ -52,7 +52,7 @@ GLint CubeTexture::initGLES()
     // Enable back face culling
     glEnable(GL_CULL_FACE);
 
-    _programObject = getGLProgramID("../cubeVertex.vsh", "../cubeFragment.fsh");
+    _programObject = getGLProgramID("../../cubeVertex.vsh", "../../cubeFragment.fsh");
     _locPosition = glGetAttribLocation(_programObject, "a_position");
     _locMVPMatrix = glGetUniformLocation(_programObject, "u_mvpMatrix");
 
@@ -183,8 +183,8 @@ void CubeTexture::drawFrames()
 int main()
 {
     F_LOG;
-    RenderConfig renConfig = {EGL_SURFACE, 1024, 768, MD_WINDOW_RGB, "Cube"};
-    GLESWrapper *cubeTexture = new CubeTexture();
+    iv::RenderConfig renConfig = {iv::EGL_SURFACE, 1024, 768, iv::MD_WINDOW_RGB, "Cube"};
+    iv::GLESWrapper *cubeTexture = new CubeTexture();
 
     cubeTexture->initEGL(renConfig);
     cubeTexture->initGLES();

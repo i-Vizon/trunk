@@ -59,7 +59,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <fstream>
 #include <iostream>
 #include <iterator>
-
+namespace iv
+{
 GLuint GLESWrapper::LoadShaderFile(GLenum type,  std::string filename)
 {
         GLuint shader;
@@ -171,3 +172,4 @@ GLuint GLESWrapper::getGLProgramID(std::string vertexFilename, std::string fragm
     }
     return programObject;
 }
+}//End of namespace vi

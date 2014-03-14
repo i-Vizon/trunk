@@ -58,11 +58,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <Common.h>
 #include <CL/cl.h>
+#include <CL/cl.hpp>
 
 #define DEBUG_CL(err) \
-            std::cout<<"line number: "<<__LINE__<<" function :"<<__func__<<"Error Name:" \
-            <<get_error_string(err) \
-            <<std::endl;
+    if(err< 0) { \
+    std::cout<<"line number: "<<__LINE__<<" function :"<<__func__<<"Error Name:" \
+    <<get_error_string(err) \
+    <<std::endl; \
+    }\
 
 #define NUMBER_OF_PLATFORMS     5
 #define NUMBER_OF_DEVICES       5
@@ -72,21 +75,131 @@ public:
     void Init();
     void getPlatformID();
     void getDeviceID();
+    void getContext();
+    void createProgram(std::string filePath);
+    void buildProgram();
+    //>>>>>>>>>>>>>>>>>Get Info
+    int getNumberOfPlatforms()
+    {
+        return _numPlatforms;
+    }
+    void getDeviceName()
+    {
+//        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, NULL, NULL, &_infoCLSize);
+//        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+//        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, sizeof(char) * _infoCLSize, _infoName, NULL );
+//        std::cout<<"CL_PLATFORM_NAME          : "<<_infoName<<std::endl;
+//        free(_infoName);
+
+    }
+    int getNumberOfDevices()
+    {
+        return _numDevices;
+    }
+
+    cl_ulong getNumberMaxComputeUnits()
+    {
+        return _maxComputeUnits;
+    }
+
+
 protected:
 private:
-    cl_int _status;
-    char  *_vendorName;
-    size_t _vendorNameSize;
-
-    cl_uint _numPlatforms;
-    cl_platform_id *_platformID;
-
-    cl_uint _numDevices;
-    cl_device_id *_deviceID;
+    //>>>>>>>>>>>>>>>>>Info Variables
+    cl_int          _status;
+    cl_long         _infoValue;
+    char*           _infoName;
+    size_t          _infoCLSize;
 
 
-    cl_context _context;
+    //>>>>>>>>>>>>>>>>>Platform
+    cl_uint         _numPlatforms;
+    cl_platform_id _platformID;
+    /**
+     * @brief _platformIDsVector
+     *        _platformIDsVector[interestedPlatformNum]
+     */
+    std::vector<cl_platform_id> _platformIDsVector; //!TODO:
+
+    //>>>>>>>>>>>>>>>>>Device Info
+    cl_uint         _numDevices;
+    cl_device_id   _deviceID;
+    cl_ulong       _maxComputeUnits;
+    cl_ulong       _maxWorkGroupSize;
+    cl_ulong   _maxMemAllocSize;
+    cl_ulong   _globalMemSize;
+    cl_ulong   _constMemSize;
+    cl_ulong   _localMemSize;
+
+    //>>>>>>>>>>>>>>>>>Device Info
+    cl_context      _context;
+
+    //>>>>>>>>>>>>>>>>>Program Info
+    cl_program      _program;
+
 
 };
 
 const char * get_error_string(cl_int err);
+
+/*
+ *#if CL_INFO_PRINT
+    {
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_NAME, NULL, NULL, &_infoCLSize);
+        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_NAME, sizeof(char) * _infoCLSize, _infoName, NULL );
+        std::cout<<"CL_PLATFORM_NAME          : "<<_infoName<<std::endl;
+
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_VENDOR, NULL, NULL, &_infoCLSize);
+        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_VENDOR, sizeof(char) * _infoCLSize, _infoName, NULL );
+        std::cout<<"CL_PLATFORM_info        : "<<_infoName<<std::endl;
+
+
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_VERSION, NULL, NULL, &_infoCLSize);
+        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_VERSION, sizeof(char) * _infoCLSize, _infoName, NULL );
+        std::cout<<"CL_PLATFORM_VERSION            : "<<_infoName<<std::endl;
+
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_PROFILE, NULL, NULL, &_infoCLSize);
+        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_PROFILE, sizeof(char) * _infoCLSize, _infoName, NULL );
+        std::cout<<"CL_PLATFORM_PROFILE            : "<<_infoName<<std::endl;
+
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_EXTENSIONS, NULL, NULL, &_infoCLSize);
+        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+        clGetPlatformInfo(_platformID[0],CL_PLATFORM_EXTENSIONS, sizeof(char) * _infoCLSize, _infoName, NULL );
+        std::cout<<"CL_PLATFORM_EXTENSIONS         : "<<_infoName<<std::endl;
+    }
+
+//#if CL_INFO_PRINT
+//    {
+//        clGetDeviceInfo(_deviceID[0],CL_DEVICE_TYPE, NULL, NULL, &_infoCLSize);
+//        _infoValue = (cl_long*)malloc(sizeof(cl_long) * _infoCLSize);
+//        clGetDeviceInfo(_deviceID[0],CL_DEVICE_TYPE, sizeof(cl_long) * _infoCLSize, (cl_long*)_infoValue, NULL );
+//        //std::cout<<"CL_DEVICE_TYPE          : "<<*_infoValue<<std::endl;
+//        printf("CL_DEVICE_TYPE : %ld\n", *_infoValue);
+
+//        clGetDeviceInfo((cl_device_id)_deviceID,CL_DEVICE_NAME, NULL, NULL, &_infoCLSize);
+//        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+//        clGetDeviceInfo((cl_device_id)_deviceID,CL_DEVICE_NAME, sizeof(char) * _infoCLSize, _infoName, NULL );
+//        std::cout<<"CL_DEVICE_NAME        : "<<_infoName<<std::endl;
+
+
+//        clGetDeviceInfo((cl_device_id)_deviceID,CL_DEVICE_VENDOR_ID, NULL, NULL, &_infoCLSize);
+//        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+//        clGetDeviceInfo((cl_device_id)_deviceID,CL_DEVICE_VENDOR_ID, sizeof(char) * _infoCLSize, _infoName, NULL );
+//        std::cout<<"CL_DEVICE_VENDOR_ID            : "<<_infoName<<std::endl;
+
+//        clGetDeviceInfo((cl_device_id)_deviceID,CL_DEVICE_MAX_COMPUTE_UNITS, NULL, NULL, &_infoCLSize);
+//        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+//        clGetDeviceInfo((cl_device_id)_deviceID,CL_PLATFORM_PROFILE, sizeof(char) * _infoCLSize, _infoName, NULL );
+//        std::cout<<"CL_DEVICE_MAX_COMPUTE_UNITS            : "<<_infoName<<std::endl;
+
+//        clGetDeviceInfo((cl_device_id)_deviceID,CL_PLATFORM_EXTENSIONS, NULL, NULL, &_infoCLSize);
+//        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+//        clGetDeviceInfo(*_deviceID,CL_PLATFORM_EXTENSIONS, sizeof(char) * _infoCLSize, _infoName, NULL );
+//        std::cout<<"CL_PLATFORM_EXTENSIONS         : "<<_infoName<<std::endl;
+//    }
+//#endif
+*/

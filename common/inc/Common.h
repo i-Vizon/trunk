@@ -56,8 +56,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <iostream>
+#include <iterator>
 
 #include <iostream>
+#include <vector>
 
 #ifdef IVIZON_DEBUG
 #define F_LOG LogBlock _l(__func__)

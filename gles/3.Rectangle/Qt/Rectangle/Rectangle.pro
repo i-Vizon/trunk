@@ -14,6 +14,28 @@ unix {
     DEFINES += IVIZON_DEBUG EGL_LINUX BOOST_MT
     LIBS += -L/usr/local/lib/
     LIBS += -lGLESv2 -lEGL -lm -lX11 -lboost_system -lboost_thread
+
+    INCLUDEPATH += /usr/local/include/opencv\
+                /usr/local/include
+
+
+    LIBS += -L/usr/local/lib/\
+            -lopencv_calib3d\
+            -lopencv_contrib\
+            -lopencv_core\
+            -lopencv_features2d\
+            -lopencv_flann\
+            -lopencv_highgui\
+            -lopencv_imgproc\
+            -lopencv_legacy\
+            -lopencv_ml\
+            -lopencv_nonfree\
+            -lopencv_objdetect\
+            -lopencv_photo\
+            -lopencv_stitching\
+            -lopencv_ts\
+            -lopencv_video\
+            -lopencv_videostab\
 }
 
 SOURCES += $$GLES_WRAPPER/src/GLESWrapper.cpp \

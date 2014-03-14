@@ -58,48 +58,93 @@ void CLSetup::Init()
 {
     getPlatformID();
     getDeviceID();
-
+    getContext();
 }
 
 void CLSetup::getPlatformID()
 {
-    _status = clGetPlatformIDs(NUMBER_OF_PLATFORMS, NULL, &_numPlatforms);
+    _status = clGetPlatformIDs(1, NULL, &_numPlatforms);
     DEBUG_CL(_status);
-    _platformID = (cl_platform_id *)malloc(sizeof(cl_platform_id) * _numPlatforms);
-    clGetPlatformIDs(_numPlatforms, _platformID, NULL);
-#if CL_INFO_PRINT
-    clGetPlatformInfo(_platformID[0],CL_PLATFORM_NAME, NULL, NULL, &_vendorNameSize);
-    _vendorName = (char*)malloc(sizeof(char)*_vendorNameSize);
-    clGetPlatformInfo(_platformID[0],CL_PLATFORM_NAME, sizeof(char) * _vendorNameSize, _vendorName, NULL );
-    std::cout<<"Platform Vendor Name Size   : "<<_vendorName<<std::endl;
+    _status =clGetPlatformIDs(1, &_platformID, NULL);
+    DEBUG_CL(_status);
 
-    clGetPlatformInfo(_platformID[0],CL_PLATFORM_VERSION, NULL, NULL, &_vendorNameSize);
-    _vendorName = (char*)malloc(sizeof(char)*_vendorNameSize);
-    clGetPlatformInfo(_platformID[0],CL_PLATFORM_VERSION, sizeof(char) * _vendorNameSize, _vendorName, NULL );
-    std::cout<<"Platform Version            : "<<_vendorName<<std::endl;
-
-    clGetPlatformInfo(_platformID[0],CL_PLATFORM_PROFILE, NULL, NULL, &_vendorNameSize);
-    _vendorName = (char*)malloc(sizeof(char)*_vendorNameSize);
-    clGetPlatformInfo(_platformID[0],CL_PLATFORM_PROFILE, sizeof(char) * _vendorNameSize, _vendorName, NULL );
-    std::cout<<"Platform Profile            : "<<_vendorName<<std::endl;
-
-    clGetPlatformInfo(_platformID[0],CL_PLATFORM_EXTENSIONS, NULL, NULL, &_vendorNameSize);
-    _vendorName = (char*)malloc(sizeof(char)*_vendorNameSize);
-    clGetPlatformInfo(_platformID[0],CL_PLATFORM_EXTENSIONS, sizeof(char) * _vendorNameSize, _vendorName, NULL );
-    std::cout<<"Platform Extensions         : "<<_vendorName<<std::endl;
-#endif
-
+    //!TODO: Multiple Platforms
+    //    cl_platform_id* _platformID;
+    //    _status = clGetPlatformIDs(NUMBER_OF_PLATFORMS, NULL, &_numPlatforms);
+    //    DEBUG_CL(_status);
+    //    _platformID = (cl_platform_id *)malloc(sizeof(cl_platform_id) * _numPlatforms);
+    //    _status =clGetPlatformIDs(_numPlatforms, _platformID, NULL);
+    //    DEBUG_CL(_status);
+    //    _platformIDsVector.assign(_platformID[0], _platformID[_numPlatforms]);
 }
 
 void CLSetup::getDeviceID()
 {
-    clGetDeviceIDs(_platformID[0],CL_DEVICE_TYPE_GPU, 5, NULL, &_numPlatforms);
-    std::cout<<"Number of devices available:"<<_numPlatforms<<std::endl;
-    _deviceID = (cl_device_id*)malloc(sizeof(cl_device_id) * _numDevices);
-    clGetDeviceIDs(_platformID[0], CL_DEVICE_TYPE_GPU, _numDevices, _deviceID, NULL);
+    //!TODO: For Multiple Devices
+    _status = clGetDeviceIDs(_platformID,CL_DEVICE_TYPE_GPU, 1, NULL, &_numDevices);
+    DEBUG_CL(_status);
+    _status = clGetDeviceIDs(_platformID, CL_DEVICE_TYPE_GPU, 1, &_deviceID, NULL);
+    DEBUG_CL(_status);
+
+    // Getting some information about the device
+    clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &_maxComputeUnits, NULL);
+    clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &_maxWorkGroupSize, NULL);
+    clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(cl_ulong), &_maxMemAllocSize, NULL);
+    clGetDeviceInfo(_deviceID, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong), &_globalMemSize, NULL);
+    clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, sizeof(cl_ulong), &_constMemSize, NULL);
+    clGetDeviceInfo(_deviceID, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), &_localMemSize, NULL);
 }
 
+void CLSetup::getContext()
+{
+    _context = clCreateContext(NULL, 1, &_deviceID, NULL, NULL, &_status);
+    DEBUG_CL(_status);
+}
 
+void CLSetup::createProgram(std::string filePath)
+{
+    //       FILE*    programFileHandle;
+    //       size_t   programSize;
+    //       char*    programBuffer;
+    //       programFileHandle = fopen(filePath.c_str(),"r");
+    //       fseek(programFileHandle, 0, SEEK_END);
+    //       programSize = ftell(programFileHandle);
+    //       rewind(programFileHandle);
+
+    //       programBuffer = (char*)malloc(programSize+1);
+    //       programBuffer[programSize+1]='\0';
+    //       fread(programBuffer, sizeof(char), programSize, programFileHandle);
+    //       fclose(programFileHandle);
+    std::ifstream programFile(filePath.c_str());
+    std::string programBuffer(std::istreambuf_iterator<char>(programFile),
+                              (std::istreambuf_iterator<char>()));
+    std::cout<<programBuffer;
+    size_t   programSize = programBuffer.size();
+    _program = clCreateProgramWithSource((_context), 1,(const char **)&programBuffer, &programSize, &_status);
+    DEBUG_CL(_status);
+    //Hide buildProgram from user?
+    //buildProgram();
+}
+
+void CLSetup::buildProgram()
+{
+    char *programLog;
+    size_t programLogSize;
+    const char options[] = "-cl-std=CL1.1 -cl-mad-enable -Werror";
+    _status= clBuildProgram(_program, 1, &_deviceID, options, NULL, NULL);
+    DEBUG_CL(_status);
+    if(_status<0)
+    {
+        clGetProgramBuildInfo(_program, _deviceID, CL_PROGRAM_BUILD_LOG, 0, NULL, &programLogSize );
+        programLog = (char*)malloc(sizeof(char)*programLogSize+1);
+        clGetProgramBuildInfo(_program, _deviceID, CL_PROGRAM_BUILD_LOG, programLogSize+1, programLog, NULL);
+        printf("\nBuild Log :%s\n",programLog);
+        free(programLog);
+    }
+    else
+        printf("Build Success\n\n");
+
+}
 const char * get_error_string(cl_int err)
 {
     F_LOG;

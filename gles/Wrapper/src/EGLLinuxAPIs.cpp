@@ -78,7 +78,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endif
 
-
+namespace iv
+{
 /**
  * @brief Creates a native window using X11
  *
@@ -369,4 +370,5 @@ const char *GLESWrapper::getEGLErrorString(EGLint errNo)
     }
 }
 
+} //End of namespace vi
 

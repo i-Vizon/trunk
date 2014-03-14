@@ -1,6 +1,6 @@
 #include <GLESWrapper.h>
 
-class TestWrapper : public GLESWrapper
+class TestWrapper : public iv::GLESWrapper
 {
     //=================================================================
     ///Method to clear the EGL surface and make it ready for
@@ -160,8 +160,8 @@ void TestWrapper::drawFrames()
 
 int main(int argc, char *argv[])
 {
-    RenderConfig renConfig = {EGL_SURFACE, 1024, 768, MD_WINDOW_RGB, "TestWrapper"};
-    GLESWrapper *testRender = new TestWrapper();
+    iv::RenderConfig renConfig = {iv::EGL_SURFACE, 1024, 768, iv::MD_WINDOW_RGB, "TestWrapper"};
+    iv::GLESWrapper *testRender = new TestWrapper();
 
     testRender->initEGL(renConfig);
     testRender->initGLES();

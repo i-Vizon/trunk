@@ -82,6 +82,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
+namespace iv
+{
 //==============================================================
 /**
  * @brief To handle different target window surface for rendering
@@ -212,4 +214,5 @@ private:
     const char* getEGLErrorString(EGLint errNo);
 };
 
+} //End of namespaace vi
 #endif
