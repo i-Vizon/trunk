@@ -35,64 +35,56 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * =============================================================================
 *
 *
-*   FILENAME            : C.h
+*   FILENAME            : KernelLauncher.cpp
 *
-*   DESCRIPTION         : Common system header files
-*
+*   DESCRIPTION         : A wrapper library for OpenCL and its native counter part
+*                         intialization. With boost thread support.
 *
 *   AUTHOR              : Mageswaran D
 *
 *
 *   CHANGE HISTORY      :
 *
-*   DATE                : 22th Feb 2014
+*   DATE                : 17th Mar 2014
 *
 *   File Created.
 *
 * =============================================================================
 */
-#ifndef COMMON_H
-#define COMMON_H
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <iostream>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <map>
-#include <iostream>
-#include <vector>
-
-const char * get_error_string(int err);
-
-#define DEBUG_CL(err) \
-    if(err< 0) { \
-    std::cout<<"line number: "<<__LINE__<<" function :"<<__func__<<"Error Name:" \
-    <<get_error_string(err) \
-    <<std::endl; \
-    exit(err); }\
-
-#ifdef IVIZON_DEBUG
-    #define F_LOG LogBlock _l(__func__)
-    struct LogBlock {
-        const char *mLine;
-        LogBlock(const char *line) : mLine(line) {
-            std::cout<<mLine <<"  -----#### Enter \n";
-        }
-        ~LogBlock() {
-            std::cout<<mLine <<" <-----#### Leave \n";
-        }
-    };
-
-
-#else
-    #define F_LOG {}
-    #define DEBUG_CL(err) {}
-#endif
+#include <CL/cl.h>
+#include <Common.h>
+#include "KernelLauncher.h"
 
 
 
-#endif
+#ifndef PROGRAM_H
+#define PROGRAM_H
+
+namespace iv {
+class Program
+{
+public:
+    Program(std::vector<std::string> &kernelFilePath, cl_context* context, cl_command_queue* queue, cl_device_id* device);
+    void createProgram(std::string filePath);
+    void buildProgram();
+    KernelLauncher* createKernelLauncher(std::string kernelName);
+    void createKernels(std::string kernelName);
+
+protected:
+
+private:
+    cl_program _program;
+    cl_kernel _kernel;
+    cl_int    _numKernels;
+    std::map<std::string, cl_kernel> _kernels;
+    std::string _filesPath;
+
+    cl_context* _pContext;
+    cl_command_queue* _pQueue;
+    cl_device_id* _pDeviceID;
+
+    cl_int _status;
+};
+}
+
+#endif // PROGRAM_H

@@ -35,64 +35,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * =============================================================================
 *
 *
-*   FILENAME            : C.h
+*   FILENAME            : Buffer.h
 *
-*   DESCRIPTION         : Common system header files
-*
+*   DESCRIPTION         : A wrapper library for OpenCL and its native counter part
+*                         intialization. With boost thread support.
 *
 *   AUTHOR              : Mageswaran D
 *
 *
 *   CHANGE HISTORY      :
 *
-*   DATE                : 22th Feb 2014
+*   DATE                : 17th Mar 2014
 *
 *   File Created.
 *
 * =============================================================================
 */
-#ifndef COMMON_H
-#define COMMON_H
+#include "Buffer.h"
+namespace iv
+{
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <iostream>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <map>
-#include <iostream>
-#include <vector>
+iv::Buffer::Buffer(cl_mem tmp, cl_command_queue *queue)
+{
+    this->_memory = tmp;
+    this->_pQueue = queue;
+}
 
-const char * get_error_string(int err);
+cl_mem& Buffer::getmem()
+{
+    return _memory;
+}
 
-#define DEBUG_CL(err) \
-    if(err< 0) { \
-    std::cout<<"line number: "<<__LINE__<<" function :"<<__func__<<"Error Name:" \
-    <<get_error_string(err) \
-    <<std::endl; \
-    exit(err); }\
+void Buffer::read(void *hostMem, const size_t size, const size_t offset, const cl_bool blocking)
+{
+    cl_int _status = 0;
+    _status = clEnqueueReadBuffer(*_pQueue, _memory, blocking, offset, size, hostMem, 0, NULL, NULL);
+    DEBUG_CL(_status);
+}
 
-#ifdef IVIZON_DEBUG
-    #define F_LOG LogBlock _l(__func__)
-    struct LogBlock {
-        const char *mLine;
-        LogBlock(const char *line) : mLine(line) {
-            std::cout<<mLine <<"  -----#### Enter \n";
-        }
-        ~LogBlock() {
-            std::cout<<mLine <<" <-----#### Leave \n";
-        }
-    };
-
-
-#else
-    #define F_LOG {}
-    #define DEBUG_CL(err) {}
-#endif
-
-
-
-#endif
+}

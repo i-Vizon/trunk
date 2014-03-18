@@ -60,12 +60,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CL/cl.h>
 #include <CL/cl.hpp>
 
-#define DEBUG_CL(err) \
-    if(err< 0) { \
-    std::cout<<"line number: "<<__LINE__<<" function :"<<__func__<<"Error Name:" \
-    <<get_error_string(err) \
-    <<std::endl; \
-    }\
+#include "Program.h"
+#include "Buffer.h"
+
+namespace iv
+{
+
 
 #define NUMBER_OF_PLATFORMS     5
 #define NUMBER_OF_DEVICES       5
@@ -75,9 +75,9 @@ public:
     void Init();
     void getPlatformID();
     void getDeviceID();
-    void getContext();
-    void createProgram(std::string filePath);
-    void buildProgram();
+    void getContextnQueue();
+    Program* createProgram(std::vector<std::string> &kernelFilePath);
+    Buffer* createBuffer(const size_t size, const cl_mem_flags flags, void* hostMem);
     //>>>>>>>>>>>>>>>>>Get Info
     int getNumberOfPlatforms()
     {
@@ -85,11 +85,11 @@ public:
     }
     void getDeviceName()
     {
-//        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, NULL, NULL, &_infoCLSize);
-//        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
-//        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, sizeof(char) * _infoCLSize, _infoName, NULL );
-//        std::cout<<"CL_PLATFORM_NAME          : "<<_infoName<<std::endl;
-//        free(_infoName);
+        //        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, NULL, NULL, &_infoCLSize);
+        //        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
+        //        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, sizeof(char) * _infoCLSize, _infoName, NULL );
+        //        std::cout<<"CL_PLATFORM_NAME          : "<<_infoName<<std::endl;
+        //        free(_infoName);
 
     }
     int getNumberOfDevices()
@@ -101,47 +101,62 @@ public:
     {
         return _maxComputeUnits;
     }
-
+    size_t getPerferredWorkGroupSize()
+    {
+        return _perferredWrkGrpSize;
+    }
 
 protected:
 private:
-    //>>>>>>>>>>>>>>>>>Info Variables
+    //>>>>>>>>>>>>>>>>>Info Members
     cl_int          _status;
     cl_long         _infoValue;
     char*           _infoName;
     size_t          _infoCLSize;
 
 
-    //>>>>>>>>>>>>>>>>>Platform
+    //>>>>>>>>>>>>>>>>>Platform Members
     cl_uint         _numPlatforms;
-    cl_platform_id _platformID;
+    cl_platform_id  _platformID;
     /**
      * @brief _platformIDsVector
      *        _platformIDsVector[interestedPlatformNum]
      */
     std::vector<cl_platform_id> _platformIDsVector; //!TODO:
 
-    //>>>>>>>>>>>>>>>>>Device Info
+    //>>>>>>>>>>>>>>>>>Device Members
     cl_uint         _numDevices;
-    cl_device_id   _deviceID;
-    cl_ulong       _maxComputeUnits;
-    cl_ulong       _maxWorkGroupSize;
-    cl_ulong   _maxMemAllocSize;
-    cl_ulong   _globalMemSize;
-    cl_ulong   _constMemSize;
-    cl_ulong   _localMemSize;
+    cl_device_id    _deviceID;
+    cl_ulong        _maxComputeUnits;
+    cl_ulong        _maxWorkGroupSize;
+    cl_ulong        _maxMemAllocSize;
+    cl_ulong        _globalMemSize;
+    cl_ulong        _constMemSize;
+    cl_ulong        _localMemSize;
 
-    //>>>>>>>>>>>>>>>>>Device Info
+    //>>>>>>>>>>>>>>>>>Context Members
     cl_context      _context;
 
-    //>>>>>>>>>>>>>>>>>Program Info
+    //>>>>>>>>>>>>>>>>>Queue Members
+    cl_command_queue      _queue;
+
+    //>>>>>>>>>>>>>>>>>Program Members
     cl_program      _program;
+
+    //>>>>>>>>>>>>>>>>>Kernel Members
+    cl_kernel   _kernel;
+    size_t      _compileWrkGrpSize;
+    size_t      _wrkGrpSize;
+    size_t      _perferredWrkGrpSize;
+    cl_ulong    _localMem;
+    cl_ulong    _privateMem;
 
 
 };
 
-const char * get_error_string(cl_int err);
+//const char * get_error_string(cl_int err);
 
+}
 /*
  *#if CL_INFO_PRINT
     {

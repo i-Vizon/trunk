@@ -36,7 +36,12 @@ COMMON          = $$IVIZON_TRUNK/common
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Common
 
-HEADERS += $$COMMON/inc/Common.h
+HEADERS += $$COMMON/inc/Common.h \
+    ../../../Wrapper/inc/Buffer.h \
+    ../../../Wrapper/inc/KernelLauncher.h \
+    ../../../Wrapper/inc/Program.h
+
+SOURCES += $$COMMON/src/Common.cpp
 
 INCLUDEPATH += $$COMMON/inc/
 
@@ -45,7 +50,10 @@ INCLUDEPATH += $$COMMON/inc/
 OPENCL          = $$IVIZON_TRUNK/opencl
 OPENCL_WRAPPER  = $$IVIZON_TRUNK/opencl/Wrapper
 
-SOURCES += $$OPENCL_WRAPPER/src/CLWrapper.cpp
+SOURCES += $$OPENCL_WRAPPER/src/CLWrapper.cpp \
+    ../../../Wrapper/src/Buffer.cpp \
+    ../../../Wrapper/src/KernelLauncher.cpp \
+    ../../../Wrapper/src/Program.cpp
 
 HEADERS += $$OPENCL_WRAPPER/inc/CLWrapper.hpp
 
@@ -75,7 +83,8 @@ INCLUDEPATH += $$GLES_WRAPPER/inc/ \
 
 SOURCES += ../../test_wrapper.cpp
 
-OTHER_FILES += ../../rotation.cl
+OTHER_FILES += \
+    ../../wrkGrpInfo.cl
 
 DEFINES += IVIZON_DEBUG CL_INFO_PRINT
 
