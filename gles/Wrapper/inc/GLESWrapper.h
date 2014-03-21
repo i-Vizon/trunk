@@ -67,7 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==============================================================
 //OpenCV Headers & Macros
 //==============================================================
-#include <opencv/highgui.h>
+//#include <opencv/highgui.h>
 
 //==============================================================
 //GLES Headers & Macros

@@ -1,43 +1,4 @@
-#include <iostream>
-#include <GLESWrapper.h>
-#include <MatrixOperations.h>
-
-/***
- *  Let us break our head by doing rotating a cube.
- */
-
-/*********************************
- *  To render a Rotationg Cube,
- *  we need
- *  1. Model View Projection Matrix mvp
- *  2. Cube Vertices
- *  3. Cube Indices
- *
- **/
-
-class CubeTexture : public iv::GLESWrapper
-{
-    // GLESWrapper interface
-public:
-    CubeTexture()
-    {
-        _rotatingAngle = 60.0f;
-    }
-
-    GLint initGLES();
-    GLint updateMVP();
-    void drawFrames();
-protected:
-
-private:
-    GLuint      _programObject;
-    GLuint      _locPosition;
-    GLuint      _locMVPMatrix;
-    GLfloat     _rotatingAngle;
-    iv::Matrix  _mvpMatrix;
-    GLfloat*    _vertices;
-    GLuint*    _indices;
-};
+#include "cube_texture.h"
 
 GLint CubeTexture::initGLES()
 {
@@ -179,15 +140,3 @@ void CubeTexture::drawFrames()
     // Draw the cube
     glDrawElements ( GL_TRIANGLES, 36/*(numIndecies)*/, GL_UNSIGNED_INT, _indices );
 }
-
-int main()
-{
-    F_LOG;
-    iv::RenderConfig renConfig = {iv::EGL_SURFACE, 1024, 768, iv::MD_WINDOW_RGB, "Cube"};
-    iv::GLESWrapper *cubeTexture = new CubeTexture();
-
-    cubeTexture->initEGL(renConfig);
-    cubeTexture->initGLES();
-    cubeTexture->startRender();
-}
-

@@ -45,7 +45,11 @@ CONFIG -= qt
 
 CUBETEXTURE = $$GLES/2.CubeTexture/
 
-SOURCES += $$CUBETEXTURE/cube_texture.cpp
+
+HEADERS += $$CUBETEXTURE/cube_texture.h
+
+SOURCES += main.cpp \
+            $$CUBETEXTURE/cube_texture.cpp
 
 OTHER_FILES += \
     ../../cubeFragment.fsh \
