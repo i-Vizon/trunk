@@ -51,6 +51,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 * =============================================================================
 */
+#ifndef CL_WRAPPER_H
+#define CL_WRAPPER_H
 
 /**
  * Enable CL_INFO_PRINT macro to see OpenCL Device and Kernel Info
@@ -62,6 +64,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "program.h"
 #include "buffer.h"
+#include "image2D.h"
+#include "sampler.h"
 
 namespace iv
 {
@@ -76,8 +80,14 @@ public:
     void getPlatformID();
     void getDeviceID();
     void getContextnQueue();
-    Program* createProgram(std::vector<std::string> &kernelFilePath);
+    //Program* createProgram(std::string &kernelFilePath);
+    Program* createProgram(std::vector<std::string> kernelFilePath);
     Buffer* createBuffer(const size_t size, const cl_mem_flags flags, void* hostMem);
+    Image2D* createImage2D(const size_t width, const size_t height, const size_t rowPitch,
+                           const cl_mem_flags flags,
+                           const cl_image_format* format,
+                           void* hostMem = NULL);
+    Sampler* createSampler(cl_bool normalizedCoords, cl_addressing_mode addrMode, cl_filter_mode filterMode);
     //>>>>>>>>>>>>>>>>>Get Info
     int getNumberOfPlatforms()
     {
@@ -97,21 +107,52 @@ public:
         return _numDevices;
     }
     ///
-    /// \brief getMaxComputeUnits
-    /// \return
-    ///
-    cl_ulong getMaxComputeUnits()
+    /// \brief Compute units are equivalent of MultiProcessor
+    ///        (which can have either 8, 32, 48 or even 192 cores),
+    ///        and these are designed to be able to simultanesouly
+    ///        run up to 8 work groups (blocks in CUDA) each.
+    ///        Eg: GeForce GT 640 : 2 * 196 = 384 cores
+    ///        Eg: Vivante GC2000 : 4 *
+    /// \return Maximum Compute Units available in your GPU in size_t
+
+    size_t getMaxComputeUnits()
     {
         return _maxComputeUnits;
     }
     size_t getPerferredWorkGroupSize()
     {
-        return _perferredWrkGrpSize;
+        return _perferredWrkGrpSize; ///!TODO:Need to get after from kernel init
     }
-     size_t getMaxWorkGroupSize()
-     {
+    ///
+    /// \brief getMaxWorkGroupSize
+    ///        Returns maximum number of work items in a workgroup
+    ///        Eg: GeForce GT 640 : 48KBytes
+    ///        Eg: Vivante GC2000 : 1KBytes
+    /// \return
+    ///
+    size_t getMaxWorkGroupSize()
+    {
         return _maxWorkGroupSize;
-     }
+    }
+    ///
+    /// \brief Returns the local memory size of device kernel groups
+    ///
+    /// \return
+    ///
+    size_t getLocalMemSize()
+    {
+        return _localMemSize;
+    }
+    size_t getPrefferedWorkGroupSize()
+    {
+        return _preferredWorkGrpSize;
+    }
+
+    ~CLSetup()
+    {
+        clReleaseCommandQueue(_queue);
+        clReleaseContext(_context);
+    }
 
 protected:
 private:
@@ -134,12 +175,13 @@ private:
     //>>>>>>>>>>>>>>>>>Device Members
     cl_uint         _numDevices;
     cl_device_id    _deviceID;
-    cl_ulong        _maxComputeUnits;
-    cl_ulong        _maxWorkGroupSize;
-    cl_ulong        _maxMemAllocSize;
-    cl_ulong        _globalMemSize;
-    cl_ulong        _constMemSize;
-    cl_ulong        _localMemSize;
+    size_t        _maxComputeUnits;
+    size_t        _maxWorkGroupSize;
+    size_t        _maxMemAllocSize;
+    size_t        _globalMemSize;
+    size_t        _constMemSize;
+    size_t        _localMemSize;
+    size_t        _preferredWorkGrpSize;
 
     //>>>>>>>>>>>>>>>>>Context Members
     cl_context      _context;
@@ -164,6 +206,8 @@ private:
 //const char * get_error_string(cl_int err);
 
 }
+
+#endif // CL_WRAPPER_H
 /*
  *#if CL_INFO_PRINT
     {

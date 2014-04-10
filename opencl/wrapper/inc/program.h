@@ -64,10 +64,15 @@ namespace iv {
 class Program
 {
 public:
+    //Program(std::string &kernelFilePath, cl_context* context, cl_command_queue* queue, cl_device_id* device);
     Program(std::vector<std::string> &kernelFilePath, cl_context* context, cl_command_queue* queue, cl_device_id* device);
     void createProgram(std::string filePath);
     void buildProgram();
     KernelLauncher* createKernelLauncher(std::string kernelName);
+    ~Program()
+    {
+        clReleaseProgram(_program);
+    }
 
 protected:
 

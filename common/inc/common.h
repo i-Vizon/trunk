@@ -66,31 +66,47 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <vector>
 
-const char * get_error_string(int err);
+///!TODO: Use bits as enum value
+typedef enum {
+    IV_CHAR_FILE_OPEN_FAIL = 0,
+    IV_CHAR_FILE_STATUS_FAIL
+}IV_ERRORS_INFO;
+
+const char* getCLErrorString(int err);
+const char* getCustomErrorString(int err, IV_ERRORS_INFO info);
+
 
 #define DEBUG_CL(err) \
     if(err< 0) { \
     std::cout<<"line number: "<<__LINE__<<" function :"<<__func__<<"Error Name:" \
-    <<get_error_string(err) \
+    <<getCLErrorString(err) \
     <<std::endl; \
-    exit(err); }\
+    exit(err); }
+
+#define DEBUG_IV(err, info) \
+    if(err< 0) { \
+    std::cout<<"line number: "<<__LINE__<<" function :"<<__func__<<"Error Name:" \
+    <<getCustomErrorString(err, info) \
+    <<std::endl; \
+    exit(err); }
+
 
 #ifdef IVIZON_DEBUG
-    #define F_LOG LogBlock _l(__func__)
-    struct LogBlock {
-        const char *mLine;
-        LogBlock(const char *line) : mLine(line) {
-            std::cout<<mLine <<"  -----#### Enter \n";
-        }
-        ~LogBlock() {
-            std::cout<<mLine <<" <-----#### Leave \n";
-        }
-    };
+#define F_LOG LogBlock _l(__func__)
+struct LogBlock {
+    const char *mLine;
+    LogBlock(const char *line) : mLine(line) {
+        std::cout<<mLine <<"  -----#### Enter \n";
+    }
+    ~LogBlock() {
+        std::cout<<mLine <<" <-----#### Leave \n";
+    }
+};
 
 
 #else
-    #define F_LOG {}
-    #define DEBUG_CL(err) {}
+#define F_LOG {}
+#define DEBUG_CL(err) {}
 #endif
 
 

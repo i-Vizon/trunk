@@ -1,6 +1,6 @@
 #include "../inc/common.h"
 
-const char * get_error_string(int err)
+const char * getCLErrorString(int err)
 {
 //    /F_LOG;
     switch(err)
@@ -54,5 +54,17 @@ const char * get_error_string(int err)
     case -62: return "CL_INVALID_MIP_LEVEL";
     case -63: return "CL_INVALID_GLOBAL_WORK_SIZE";
     default: return "Unknown OpenCL error";
+    }
+}
+
+
+const char* getCustomErrorString(int err, IV_ERRORS_INFO info)
+{
+    switch(info)
+    {
+        case IV_CHAR_FILE_OPEN_FAIL: return "IV_CHAR_FILE_OPEN_FAIL";
+        case IV_CHAR_FILE_STATUS_FAIL: return "IV_CHAR_FILE_STATUS_FAIL";
+    default:
+        return "IV_UNKNOWN_ERROR";
     }
 }

@@ -55,12 +55,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace iv {
 
 Program::Program(std::vector<std::string> &kernelFilePath, cl_context *context, cl_command_queue *queue, cl_device_id *device)
+//Program::Program(std::string &kernelFilePath, cl_context *context, cl_command_queue *queue, cl_device_id *device)
 {
     this->_pContext     = context;
     this->_pQueue       = queue;
     this->_pDeviceID    = device;
 
     std::ifstream programFile(kernelFilePath[0].c_str());
+    //std::ifstream programFile(kernelFilePath.c_str());
     std::string programBuffer(std::istreambuf_iterator<char>(programFile),
                               (std::istreambuf_iterator<char>()));
     if(programBuffer.empty())
@@ -86,6 +88,7 @@ void Program::buildProgram()
         clGetProgramBuildInfo(_program, *_pDeviceID, CL_PROGRAM_BUILD_LOG, programLogSize+1, programLog, NULL);
         printf("\nBuild Log :%s\n",programLog);
         free(programLog);
+        exit(0); ///!TODO: Custom Code
     }
 
     //_kernel = clCreateKernel(_program, kernelName.c_str(), &_status);
@@ -103,7 +106,7 @@ void Program::buildProgram()
         _status = clGetKernelInfo(k[i], CL_KERNEL_FUNCTION_NAME, sizeof(char)*256, (void*) name, NULL);
         DEBUG_CL(_status);
         _kernels[name] = k[i];
-        std::cout<<"Kernel No :"<<i+1<<" Name :"<<name; ///!TODO: Remove this
+        printf("Kernel No :%d Name %s ", i+1, name); ///!TODO: Remove this
     }
 
 }

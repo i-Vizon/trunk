@@ -51,26 +51,75 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * =============================================================================
 */
 #include <cl_wrapper.hpp>
+#include <file_operation.h>
 
 int main(int argc, char* argv[])
 {
     if(argc < 2)
-        argv[1] = "../../string_search.cl";
-    iv::CLSetup     cl;
-    iv::Program*    pProgram;
+        argv[1] = "string_search.cl";
+
+    std::string file = argv[1];
+
+    //CLWrapper Variables
+    iv::CLSetup         cl;
+    iv::Program*        pProgram;
     iv::KernelLauncher* pKl;
-    iv::Buffer*     pDBuffer;
+    std::vector<std::string>  kernelFiles;
+    kernelFiles.push_back(file);
 
     //Test specific variables
-    size_t globalSize, localSize;
-
+    long numComputeUnits;
+    size_t  maxGrpSize, localMemSize, preferredWrkSize;
 
     cl.init();
-    globalSize = cl.getMaxComputeUnits();
-    localSize = cl.getMaxWorkGroupSize();
 
-    std::cout<<globalSize<<" "<<localSize;
+    numComputeUnits     = cl.getMaxComputeUnits();
+    maxGrpSize          = cl.getMaxWorkGroupSize();
+    localMemSize        = cl.getLocalMemSize();
 
+    std::cout<<"Number of Compute Units   : "<<numComputeUnits<<std::endl
+            <<"Max Work Group Size       : "<<maxGrpSize<<std::endl
+           <<"Local Memory Size         : "<<localMemSize/1024<<"k"<<std::endl;
+
+    //    Argument 2
+    std::string textFile("string_search.txt");
+    char *textBuffer = NULL;
+    iv::FileIO charFile;
+    size_t textSize;
+    charFile.readCharFile(textFile, textBuffer, textSize);
+    iv::Buffer* dTextBuffer;
+    dTextBuffer = cl.createBuffer(textSize, CL_MEM_READ_ONLY |CL_MEM_COPY_HOST_PTR, textBuffer);
+
+    std::cout<<"Text file size :" << textSize <<std::endl;
+    //Argument 1
+    char pattern[16] = "thatwithhavefro";
+    //Set the kernel argument directly
+
+    //Argument 3
+    int charPerItem = (textSize /(numComputeUnits * maxGrpSize)) + 1;
+    std::cout<<"Characters per item :" << charPerItem <<std::endl;
+
+    //Argument 4
+    int result[4] = {1, 0, 0, 0};
+    iv::Buffer* dResult = cl.createBuffer(sizeof(result), CL_MEM_READ_WRITE  | CL_MEM_COPY_HOST_PTR, result);
+
+
+    pProgram = cl.createProgram(kernelFiles);
+    pProgram->buildProgram();
+
+    std::string kernelName = "string_search";
+    pKl      = pProgram->createKernelLauncher(kernelName);
+
+    pKl->pGlobal(numComputeUnits)->pLocal(maxGrpSize);
+    pKl->pArg(pattern)->pArg(dTextBuffer->getMem())->pArg(charPerItem)->pArg(dResult->getMem());
+    pKl->run();
+
+    dResult->read(result, sizeof(result));
+    printf("\nResults: \n");
+    printf("Number of occurrences of 'that': %d\n", result[0]);
+    printf("Number of occurrences of 'with': %d\n", result[1]);
+    printf("Number of occurrences of 'have': %d\n", result[2]);
+    printf("Number of occurrences of 'from': %d\n", result[3]);
 
     return 0;
 }

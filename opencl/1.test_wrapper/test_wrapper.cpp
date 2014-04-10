@@ -70,11 +70,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cl_wrapper.hpp>
 
 //Global Dimension
-#define GROWS 16
-#define GCOLS 16
+int GROWS = 16;
+int GCOLS = 16;
 //Local Dimension
-#define LROWS 2
-#define LCOLS 2
+int LROWS = 4;
+int LCOLS = 4;
 int main(int argc, char* argv[])
 {
     if(argc < 2)
@@ -85,28 +85,40 @@ int main(int argc, char* argv[])
     iv::Buffer*         buff1d;
     iv::KernelLauncher* kl;
     std::vector<std::string> kernelFiles;
-    float               res[GROWS * GCOLS];
+    std::string  file=  "wrk_grp_info.cl";
 
-    kernelFiles.push_back(argv[1]);
+
+    kernelFiles.push_back(file);
+    //Test PRoject VAriables
+    float               res[GROWS * GCOLS];
+    long numComputeUnits;
+    long maxGrpThreads;
 
 
     cl.init();
 
     std::cout<<"Number of Platforms "<<cl.getNumberOfPlatforms()<<std::endl;
 
+    numComputeUnits = cl.getMaxComputeUnits();
+    std::cout<<"Number of Max Compute Units "<<numComputeUnits<<std::endl;
     cl.getDeviceName();
 
     std::cout<<"Number of Devices "<<cl.getNumberOfDevices()<<std::endl;
     std::cout<<"Number of Compute Units "<<cl.getMaxComputeUnits()<<std::endl;
 
+    numComputeUnits = cl.getMaxComputeUnits();
+    maxGrpThreads   = cl.getMaxWorkGroupSize();
+
     prog = cl.createProgram(kernelFiles);
     prog->buildProgram();
 
+
     buff1d = cl.createBuffer(GROWS * GCOLS * sizeof(float), CL_MEM_WRITE_ONLY, NULL);
 
-    kl = prog->createKernelLauncher("id_check");
+    std::string kernelName = "id_check";
+    kl = prog->createKernelLauncher(kernelName);
     kl->pGlobal(GROWS,GCOLS)->pLocal(LROWS,LCOLS);
-    kl->pArg(buff1d->getmem());
+    kl->pArg(buff1d->getMem());
     kl->run();
 
     buff1d->read(res, sizeof(float)* GROWS * GCOLS);

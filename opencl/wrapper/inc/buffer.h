@@ -56,20 +56,119 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <common.h>
 #include <CL/cl.h>
+
 namespace iv
 {
-    class Buffer
-    {
-    public:
-        Buffer(cl_mem tmp, cl_command_queue *queue);
+class Image2D;
+/**
+ * @brief
+ *
+ */
+class Buffer
+{
+public:
+    /**
+     * @brief
+     *
+     * @param tmp
+     * @param queue
+     */
+    Buffer(cl_mem tmp, cl_command_queue *queue);
 
-        cl_mem& getmem();
-        void read(void* hostMem, const size_t size, const size_t offset=0, const cl_bool blocking=CL_TRUE);
-    protected:
-    private:
-        cl_mem _memory;
-        cl_command_queue* _pQueue;
-    };
+    /**
+     * @brief
+     *
+     * @return cl_mem
+     */
+    cl_mem& getMem();
+
+    /**
+     * @brief
+     *
+     * @param hostMem
+     * @param size
+     * @param offset
+     * @param blocking
+     */
+    void read(void* hostMem, const size_t size, const size_t offset=0, const cl_bool blocking=CL_TRUE);
+
+    /**
+     * @brief
+     *
+     * @param hostMem
+     * @param size
+     * @param offset
+     * @param blocking
+     */
+    void write(const void* hostMem, const size_t size, const size_t offset=0, const cl_bool blocking=CL_TRUE);
+
+    /**
+     * @brief
+     *
+     * @param dst
+     * @param size
+     * @param srcOffset
+     * @param dstOffset
+     */
+    void copy(Buffer& dst, const size_t size, const size_t srcOffset=0, const size_t dstOffset=0);
+
+
+    /**
+         * @brief
+         *
+         * @param flags
+         * @param size
+         * @param offset
+         * @param blocking
+         */
+    void* map(const cl_map_flags flags, const size_t size, const size_t offset, const cl_bool blocking=CL_TRUE);
+
+    /**
+         * @brief
+         *
+         * @param mappedPtr
+         */
+    void unmap(void* mappedPtr);
+
+    /**
+         * @brief
+         *
+         * @param dst
+         * @param size[]
+         * @param srcOffset
+         * @param dstOffset[]
+         */
+    void copyToImage2D(Image2D& dst, const size_t size[2], const size_t srcOffset, const size_t dstOffset[2]);
+
+    /**
+         * @brief
+         *
+         * @param dst
+         * @param size[]
+         * @param srcOffset
+         * @param dstOffset[]
+         */
+    void copyToImage3D(Image2D& dst, const size_t size[3], const size_t srcOffset, const size_t dstOffset[3]);
+
+    /**
+         * @brief
+         *
+         * @param paramName
+         */
+    void* getMemInfo(const cl_mem_info paramName);
+
+    virtual ~Buffer()
+    {
+        clReleaseMemObject(_memory);
+        std::cout<<"\nReleasing GPU Memory Buffers\n\n\n";
+    }
+
+protected:
+    cl_mem _memory; /**< TODO */
+    cl_command_queue* _pQueue; /**< TODO */
+private:
+
+};
 }
 
 

@@ -77,7 +77,7 @@ public:
     KernelLauncher* pGlobal(const int gx, const int gy, const int gz);
     KernelLauncher* pLocal(const int l);
     KernelLauncher* pLocal(const int lx, const int ly);
-    KernelLauncher *pLocal(const int lx, const int ly, const int lz);
+    KernelLauncher* pLocal(const int lx, const int ly, const int lz);
 
     int countArgs();
 
@@ -110,19 +110,22 @@ public:
 
     ///For a continuous aggignment using an object
     template<class T>
-    KernelLauncher* pArg(const int index, T x) {
+    KernelLauncher* pArg(const int index, T &x) {
         if (index >= _numArgs || index < 0) {
             std::cout << "Error: argument index out of range" << std::endl;
             exit(-1);///!TODO: Custom exit code
         }
         cl_int status = clSetKernelArg(*_pKernel, index, sizeof(x), &x);
+        std::cout<<"Setting Kernel Argument: "<<index
+                <<" :of value "<<x<<std::endl
+                <<" :of size "<<sizeof(x)<<std::endl;
         DEBUG_CL(status);
         _argListData[index] = true;
         return this;
     }
     ///For a continuous aggignment using an pointer object
     template<class T>
-    KernelLauncher* pArg(T x) {
+    KernelLauncher* pArg(T &x) {
         int nArgs = countArgs();
         if (nArgs >= _numArgs) {
             std::cout << "Error trying to enqueue too much arguments" << std::endl;
@@ -135,6 +138,12 @@ public:
         return this;
     }
     void run();
+
+    ~KernelLauncher()
+    {
+        clReleaseKernel(*_pKernel);
+    }
+
 protected:
 private:
     cl_kernel*          _pKernel;

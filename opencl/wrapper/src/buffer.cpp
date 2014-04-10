@@ -61,16 +61,46 @@ iv::Buffer::Buffer(cl_mem tmp, cl_command_queue *queue)
     this->_pQueue = queue;
 }
 
-cl_mem& Buffer::getmem()
+cl_mem& Buffer::getMem()
 {
     return _memory;
 }
 
 void Buffer::read(void *hostMem, const size_t size, const size_t offset, const cl_bool blocking)
 {
-    cl_int _status = 0;
-    _status = clEnqueueReadBuffer(*_pQueue, _memory, blocking, offset, size, hostMem, 0, NULL, NULL);
-    DEBUG_CL(_status);
+    cl_int status = 0;
+    status = clEnqueueReadBuffer(*_pQueue, _memory, blocking, offset, size, hostMem, 0, NULL, NULL);
+    DEBUG_CL(status);
+}
+
+void Buffer::write(const void *hostMem, const size_t size, const size_t offset, const cl_bool blocking)
+{
+
+}
+
+void Buffer::copy(Buffer &dst, const size_t size, const size_t srcOffset, const size_t dstOffset)
+{
+
+}
+
+void *Buffer::map(const cl_map_flags flags, const size_t size, const size_t offset, const cl_bool blocking)
+{
+
+}
+
+void Buffer::unmap(void *mappedPtr)
+{
+
+}
+
+void Buffer::copyToImage2D(Image2D &dst, const size_t size[], const size_t srcOffset, const size_t dstOffset[])
+{
+
+}
+
+void Buffer::copyToImage3D(Image2D &dst, const size_t size[], const size_t srcOffset, const size_t dstOffset[])
+{
+
 }
 
 }

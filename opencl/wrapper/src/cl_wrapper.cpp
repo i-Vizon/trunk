@@ -96,6 +96,9 @@ void CLSetup::getDeviceID()
     clGetDeviceInfo(_deviceID, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong), &_globalMemSize, NULL);
     clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, sizeof(cl_ulong), &_constMemSize, NULL);
     clGetDeviceInfo(_deviceID, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), &_localMemSize, NULL);
+    //clGetDeviceInfo(_deviceID, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(cl_ulong), &_preferredWorkGrpSize, NULL);
+    ///!TODO:Add get KernelInfo APIs
+
 }
 
 void CLSetup::getContextnQueue()
@@ -106,8 +109,15 @@ void CLSetup::getContextnQueue()
     DEBUG_CL(_status);
 }
 
-Program *CLSetup::createProgram(std::vector<std::string> &kernelFilePath)
+///
+/// \brief CLSetup::createProgram
+/// \param kernelFilePath
+/// \return
+///
+Program *CLSetup::createProgram(std::vector<std::string> kernelFilePath)
+//Program *CLSetup::createProgram(std::string& kernelFilePath)
 {
+    ///!TODO: Add support for char** along with string
     Program* tmp = new Program(kernelFilePath, &_context, &_queue, &_deviceID);
     return tmp;
 }
@@ -122,6 +132,22 @@ Buffer* CLSetup::createBuffer(const size_t size, const cl_mem_flags flags, void 
     }
     DEBUG_CL(_status);
     return NULL; //TODO: Return custom status value
+}
+
+Image2D *CLSetup::createImage2D(const size_t width, const size_t height, const size_t rowPitch, const cl_mem_flags flags, const cl_image_format *format, void *hostMem)
+{
+    cl_int err = 0;
+    cl_mem im2d = clCreateImage2D(_context, flags, format, width, height, rowPitch, hostMem, &_status);
+    DEBUG_CL(_status);
+    Image2D* ret = new Image2D(im2d, rowPitch, &_queue);
+    return ret;
+}
+
+Sampler* CLSetup::createSampler(cl_bool normalizedCoords, cl_addressing_mode addrMode, cl_filter_mode filterMode)
+{
+    cl_int err =0;
+    Sampler* ret = new  Sampler(&_context, normalizedCoords, addrMode, filterMode);
+    return ret;
 }
 
 

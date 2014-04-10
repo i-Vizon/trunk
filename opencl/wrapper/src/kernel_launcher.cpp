@@ -61,12 +61,13 @@ KernelLauncher::KernelLauncher(cl_kernel *kernel, cl_command_queue *queue)
     this->_pQueue = queue;
     this->_dimensions = -1;
     _globalWorkSize[0] = _globalWorkSize[1] = _globalWorkSize[2] =
-            _localWorkSize[0] = _localWorkSize[1] = _localWorkSize[2] = -1;
+            _localWorkSize[0] = _localWorkSize[1] = _localWorkSize[2] = NULL;
 
     //Finding number of arguments in given kernel and making an bool array to track its data
     //content
     status = clGetKernelInfo(*_pKernel, CL_KERNEL_NUM_ARGS, sizeof(cl_int), &_numArgs, NULL);
     DEBUG_CL(status);
+    std::cout<<"\nNumber of kernel Arguments :"<<_numArgs<<std::endl;
     this->_argListData = (cl_bool*) malloc(_numArgs*sizeof(cl_bool));//new cl_bool[numArgs];
     for(int i=0; i<_numArgs; i++)
         this->_argListData[i] = false;
@@ -93,8 +94,22 @@ void KernelLauncher::run() {
         std::cout << std::endl;
         exit(-1); ///!TODO: custom return code
     }
-    cl_int status = clEnqueueNDRangeKernel(*_pQueue, *_pKernel, _dimensions, NULL, _globalWorkSize, _localWorkSize, 0, NULL, NULL);
-     DEBUG_CL(status);
+//    if(_localWorkSize[0] == NULL)
+//    {
+//        cl_int status = clEnqueueNDRangeKernel(*_pQueue, *_pKernel, _dimensions,
+//                                               NULL, _globalWorkSize, NULL, 0,
+//                                               NULL, NULL);
+//        DEBUG_CL(status);
+//    }
+
+//    else
+    {
+        cl_int status = clEnqueueNDRangeKernel(*_pQueue, *_pKernel, _dimensions,
+                                               NULL, _globalWorkSize, _localWorkSize, 0,
+                                               NULL, NULL);
+        DEBUG_CL(status);
+    }
+
 }
 KernelLauncher& KernelLauncher::global(const int g) {
     if (_dimensions == -1) _dimensions = 1;
