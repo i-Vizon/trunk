@@ -3,7 +3,8 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-include(../../../wrapper/ivizonQt.pri)
+include(../../../wrapper/clWrapper.pri)
+include(../../../../opencv/wrapper/cvWrapper.pri)
 
 imx6qSabreAuto {
     target.files = test_image_convolution
@@ -18,7 +19,11 @@ imx6qSabreAuto {
 }
 
 linuxPC {
-    copydata.commands = $(COPY_DIR) ../../image_convolution.cl ../../shiva1.jpg ../../shiva.jpg $$OUT_PWD
+    copydata.commands = $(COPY_DIR) \
+                        ../../image_convolution.cl \
+                        $$DATA/shiva1.jpg \
+                        $$DATA/shiva.jpg \
+                        $$DATA/input.bmp $$OUT_PWD
     first.depends = $(first) copydata
     export(first.depends)
     export(copydata.commands)
@@ -26,7 +31,7 @@ linuxPC {
 }
 
 SOURCES += \
-    test_image_Convolution.cpp
+    ../../image_Convolution.cpp
 
 OTHER_FILES += ../../shiva.jpg \
     ../../image_convolution.cl

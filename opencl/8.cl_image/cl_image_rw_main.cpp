@@ -245,7 +245,7 @@ int main()
         cv::imshow("Original File", jpegOriginal);
         std::cout<<"Total Pixels in File: "<<jpegOriginal.total()<<"\n";
         std::cout<<"Pixel Data Type :"<<jpegOriginal.type()<<"\n";
-        std::cout<<"Step Value :"<<jpegOriginal.step<<"\n";
+        std::cout<<"Original Step Value :"<<jpegOriginal.step<<"\n";
         std::cout<<"Element Size :"<<jpegOriginal.elemSize()<<"\n";
         std::cout<<"Num of Channels :"<<jpegOriginal.channels()<<"\n";
         std::cout<<"Num of cols (cols * channesl) :"<<jpegOriginal.cols * jpegOriginal.channels()<<"\n";
@@ -274,6 +274,7 @@ int main()
             cv::waitKey();
 
             int step = jpegBGRA.step;
+            std::cout<<"BGRA Step Value :"<<step<<"\n";
 
             cl::ImageFormat jpegFormat;
             jpegFormat.image_channel_order = CL_RGBA;
@@ -303,12 +304,15 @@ int main()
             cv::imshow("GRAY", jpegGRAY);
             cv::waitKey();
 
+            int step = jpegGRAY.step;
+            std::cout<<"GRAY Step Value :"<<step<<"\n";
+
             cl::ImageFormat jpegFormat;
             jpegFormat.image_channel_order = CL_R;
             jpegFormat.image_channel_data_type = CL_UNORM_INT8;
 
             //ArgNo: 0
-            cl::Image2D src(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, jpegFormat, size_t(width), size_t(height), size_t(0), jpegGRAY.data);
+            cl::Image2D src(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, jpegFormat, size_t(width), size_t(height), size_t(step), jpegGRAY.data);
             //ArgNo: 1
             cl::Image2D dst(context, CL_MEM_WRITE_ONLY, jpegFormat, size_t(width), size_t(height), size_t(0));
 

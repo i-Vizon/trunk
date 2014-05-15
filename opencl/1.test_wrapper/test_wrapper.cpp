@@ -89,18 +89,33 @@ int main(int argc, char* argv[])
 
 
     kernelFiles.push_back(file);
-    //Test PRoject VAriables
+    //Test PRoject Variables
     float               res[GROWS * GCOLS];
-    long numComputeUnits;
+
     long maxGrpThreads;
 
 
     cl.init();
 
+    //Test specific variables
+    int numComputeUnits;
+    int  maxGrpSize, localMemSize, preferredWrkSize;
+    int globalWrkItems;
+    int localWrkItems;
+    numComputeUnits     = cl.getMaxComputeUnits();
+    maxGrpSize          = cl.getMaxWorkGroupSize();
+    localMemSize        = cl.getLocalMemSize();
+
+    globalWrkItems = numComputeUnits * maxGrpSize;
+    localWrkItems = maxGrpSize;
+
+    std::cout<<"Number of Compute Units   : "<<numComputeUnits<<std::endl
+             <<"Max Work Group Size       : "<<maxGrpSize<<std::endl
+             <<"Local Memory Size         : "<<localMemSize/1024<<"k"<<std::endl;
+
+
     std::cout<<"Number of Platforms "<<cl.getNumberOfPlatforms()<<std::endl;
 
-    numComputeUnits = cl.getMaxComputeUnits();
-    std::cout<<"Number of Max Compute Units "<<numComputeUnits<<std::endl;
     cl.getDeviceName();
 
     std::cout<<"Number of Devices "<<cl.getNumberOfDevices()<<std::endl;

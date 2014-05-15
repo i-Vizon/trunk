@@ -60,17 +60,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @param rowStep Width/Column * Num of channels
  * @param queue
  */
-iv::Image2D::Image2D(cl_mem mem, const size_t rowStep, cl_command_queue *queue)
+iv::Image2D::Image2D(cl_mem mem, cl_command_queue *queue, int rowStep)
     :Buffer(mem, queue)
 {
     //Needed to copy the right amount of data back to the memory
+     printf("\n2. Image2D mem transfered: %d\n",mem);
     this->_rowPitch = rowStep;
 }
 
-void iv::Image2D::read(void *hostMem, const size_t size[], const size_t offset[], cl_bool blocking)
+void iv::Image2D::read(void *hostMem, const size_t origin[], const size_t region[], cl_bool blocking)
 {
+//    clEnqueueReadImage(cl_command_queue     /* command_queue */,
+//                       cl_mem               /* image */,
+//                       cl_bool              /* blocking_read */,
+//                       const size_t *       /* origin[3] */,
+//                       const size_t *       /* region[3] */,
+//                       size_t               /* row_pitch */,
+//                       size_t               /* slice_pitch */,
+//                       void *               /* ptr */,
+//                       cl_uint              /* num_events_in_wait_list */,
+//                       const cl_event *     /* event_wait_list */,
+//                       cl_event *           /* event */)
+     printf("\n4. Image2D read _memory create: %d\n",_memory);
     cl_int err = 0;
-    err = clEnqueueReadImage(*_pQueue, _memory, blocking, offset, size, _rowPitch, 0, hostMem, 0, NULL, NULL);
+    std::cout<<"Image width, height  & depth"
+             <<region[0]<<" "
+             <<region[1]<<" "
+             <<region[2]<<" "
+             <<"Row pitch is: "<<_rowPitch<<std::endl;
+    std::cout<<"Image porigin"
+             <<origin[0]<<" "
+             <<origin[1]<<" "
+             <<origin[2]<<std::endl;
+    if(blocking)
+        std::cout<<"\nBLOCKING READ\n";
+    err = clEnqueueReadImage(*_pQueue, _memory, blocking,
+                             origin, region, _rowPitch, 0,
+                             hostMem, 0, NULL, NULL);
+
     DEBUG_CL(_status);
 }
 
@@ -83,10 +110,24 @@ void iv::Image2D::read(void *hostMem, const size_t size[], const size_t offset[]
  * @param offset[] origin
  * @param blocking
  */
-void iv::Image2D::write(void *hostMem, const size_t size[], const size_t offset[], cl_bool blocking)
+void iv::Image2D:: write(void *hostMem, const size_t origin[], const size_t region[], cl_bool blocking)
 {
     cl_int err = 0;
-    err = clEnqueueWriteImage(*_pQueue, _memory, blocking, offset, size, _rowPitch, 0, hostMem, 0, NULL, NULL);
+//    clEnqueueWriteImage(cl_command_queue    /* command_queue */,
+//                        cl_mem              /* image */,
+//                        cl_bool             /* blocking_write */,
+//                        const size_t *      /* origin[3] */,
+//                        const size_t *      /* region[3] */,
+//                        size_t              /* input_row_pitch */,
+//                        size_t              /* input_slice_pitch */,
+//                        const void *        /* ptr */,
+//                        cl_uint             /* num_events_in_wait_list */,
+//                        const cl_event *    /* event_wait_list */,
+//                        cl_event *          /* event */)
+    printf("\n3. Image2D _memory create: %d\n",_memory);
+    err = clEnqueueWriteImage(*_pQueue, _memory, blocking, origin,
+                              region, _rowPitch, 0,
+                              hostMem, 0, NULL, NULL);
     DEBUG_CL(_status);
 }
 

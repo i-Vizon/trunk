@@ -61,7 +61,7 @@ namespace iv
 class Image2D : public Buffer
 {
     public:
-        Image2D(cl_mem mem, const size_t rowPitch, cl_command_queue* queue);
+        Image2D(cl_mem mem, cl_command_queue* queue, int rowPitch = 0);
         void read(void* hostMem, const size_t size[2],
                   const size_t offset[2], cl_bool blocking = CL_TRUE);
         void write(void* hostMem, const size_t size[2],

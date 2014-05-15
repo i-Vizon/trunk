@@ -17,7 +17,9 @@ OTHER_FILES += \
 
 INCLUDEPATH += /usr/local/cuda-5.5/include/
 
-copydata.commands = $(COPY_DIR) ../../imgRW.cl ../../../../data/shiva1.jpg ../../../../data/shiva.jpg $$OUT_PWD
+copydata.commands = $(COPY_DIR) ../../imgRW.cl \
+                    ../../../../data/shiva1.jpg \
+                    ../../../../data/shiva.jpg $$OUT_PWD
 first.depends = $(first) copydata
 export(first.depends)
 export(copydata.commands)

@@ -72,15 +72,16 @@ Program::Program(std::vector<std::string> &kernelFilePath, cl_context *context, 
     size_t   programSize = programBuffer.size();
     _program = clCreateProgramWithSource((*_pContext), 1,(const char **)&programBuffer, &programSize, &_status);
     DEBUG_CL(_status);
+
+    _buildState = false;
 }
 
 void Program::buildProgram()
 {
     char *programLog;
     size_t programLogSize;
-    const char options[] = "-cl-std=CL1.1 -cl-mad-enable -Werror";
+    const char options[] = "-cl-std=CL1.0 -cl-mad-enable -Werror";
     _status= clBuildProgram(_program, 1, _pDeviceID, options, NULL, NULL);
-    DEBUG_CL(_status);
     if(_status<0)
     {
         clGetProgramBuildInfo(_program, *_pDeviceID, CL_PROGRAM_BUILD_LOG, 0, NULL, &programLogSize );
@@ -88,8 +89,9 @@ void Program::buildProgram()
         clGetProgramBuildInfo(_program, *_pDeviceID, CL_PROGRAM_BUILD_LOG, programLogSize+1, programLog, NULL);
         printf("\nBuild Log :%s\n",programLog);
         free(programLog);
-        exit(0); ///!TODO: Custom Code
+//        exit(0); ///!TODO: Custom Code
     }
+    DEBUG_CL(_status);
 
     //_kernel = clCreateKernel(_program, kernelName.c_str(), &_status);
     //DEBUG_CL(_status);
@@ -106,14 +108,20 @@ void Program::buildProgram()
         _status = clGetKernelInfo(k[i], CL_KERNEL_FUNCTION_NAME, sizeof(char)*256, (void*) name, NULL);
         DEBUG_CL(_status);
         _kernels[name] = k[i];
-        printf("Kernel No :%d Name %s ", i+1, name); ///!TODO: Remove this
+        DEBUG_VALUE("Kernel No: ", i+1);
+        DEBUG_VALUE("Kernel Name: ", name);
     }
+
+    _buildState = true;
 
 }
 
 KernelLauncher* Program::createKernelLauncher(std::string kernelName)
 {
-    ///@tips Always use a pointer to an variable that needs to be returned
+    if(!_buildState)
+        ERROR_PRINT_STRING("You forgot to build the kernel");
+
+    /// @TIPS: Always use a pointer to an variable that needs to be returned
     KernelLauncher *kl = new KernelLauncher(&_kernels[kernelName], _pQueue);
     return kl;
 }

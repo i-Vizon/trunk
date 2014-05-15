@@ -1,9 +1,12 @@
 void __kernel sobel(__global uchar* inputMat, __global uchar* outputMat)
 {
-    int y = get_global_id(0);
-    int x = get_global_id(1);
+    int x = get_global_id(0);
+    int y = get_global_id(1);
 
-    outputMat[y * get_global_size(0) + x] = inputMat[y * get_global_size(0) + x];
+    if(x > 200 && y > 200)
+        outputMat[y * get_global_size(0) + x] = inputMat[y * get_global_size(0) + x];
+    else
+        outputMat[y * get_global_size(0) + x] = 0;
 }
 
     /**
@@ -18,4 +21,4 @@ void __kernel sobel(__global uchar* inputMat, __global uchar* outputMat)
      767***************************************
      */
 
-//get_global_size(0) == 1024
+//get_global_size(1) == 1024

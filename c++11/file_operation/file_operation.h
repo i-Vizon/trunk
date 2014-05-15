@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * =============================================================================
 */
 
-#include <common.h>
+#include <iv_common.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

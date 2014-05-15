@@ -1,13 +1,14 @@
 ####################################
-# Template Section                 #
+# GLES Template Section            #
 ####################################
 
 IVIZON_TRUNK = /opt/i-vizon/trunk
 GLES = $$IVIZON_TRUNK/gles
-GLES_WRAPPER = $$GLES/Wrapper/
+GLES_WRAPPER = $$GLES/wrapper/
 UTILS = $$IVIZON_TRUNK/utils
 COMMON = $$IVIZON_TRUNK/common
-unix {
+
+linuxPC {
     QT_CONFIG -= no-pkg-config
     CONFIG += link_pkgconfig
     PKGCONFIG += opencv

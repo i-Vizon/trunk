@@ -52,7 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * =============================================================================
 */
 #include "sampler.h"
-#include <common.h>
+#include <iv_common.h>
 
 iv::Sampler::Sampler(cl_context* context, cl_bool normalizedCoords, cl_addressing_mode addrMode, cl_filter_mode filterMode)
 {

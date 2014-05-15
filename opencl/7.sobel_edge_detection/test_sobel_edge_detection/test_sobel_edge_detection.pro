@@ -3,7 +3,8 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-include(../../wrapper/ivizonQt.pri)
+include(../../wrapper/clWrapper.pri)
+include(../../../opencv/wrapper/cvWrapper.pri)
 
 imx6qSabreAuto {
     target.files = test_sobel_edge_detection

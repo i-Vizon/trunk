@@ -52,7 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * =============================================================================
 */
 #include <CL/cl.h>
-#include <common.h>
+#include <iv_common.h>
 #include "kernel_launcher.h"
 
 
@@ -88,6 +88,7 @@ private:
     cl_device_id* _pDeviceID;
 
     cl_int _status;
+    cl_bool _buildState;
 };
 }
 

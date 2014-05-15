@@ -55,7 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef KERNELLAUNCHER_H
 #define KERNELLAUNCHER_H
 
-#include <common.h>
+#include <iv_common.h>
 #include "CL/cl.h"
 
 namespace iv {
@@ -116,9 +116,9 @@ public:
             exit(-1);///!TODO: Custom exit code
         }
         cl_int status = clSetKernelArg(*_pKernel, index, sizeof(x), &x);
-        std::cout<<"Setting Kernel Argument: "<<index
-                <<" :of value "<<x<<std::endl
-                <<" :of size "<<sizeof(x)<<std::endl;
+        DEBUG_VALUE("Setting Kernel Argument: ", index);
+        DEBUG_VALUE("Value/Address: ", x);
+        DEBUG_VALUE("Size : ", sizeof(x));
         DEBUG_CL(status);
         _argListData[index] = true;
         return this;

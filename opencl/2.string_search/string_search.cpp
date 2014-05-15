@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *   FILENAME            : string_search.cpp
 *
 *   DESCRIPTION         : To demonstrate the reduction alogorithm with a string
-*                         search
+*                         search. OpenCLInAction Chapter 11
 *
 *   AUTHOR              : Mageswaran D
 *
@@ -53,22 +53,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cl_wrapper.hpp>
 #include <file_operation.h>
 
-int main(int argc, char* argv[])
+int main()
 {
-    if(argc < 2)
-        argv[1] = "string_search.cl";
-
-    std::string file = argv[1];
-
     //CLWrapper Variables
     iv::CLSetup         cl;
     iv::Program*        pProgram;
     iv::KernelLauncher* pKl;
+    size_t globalWrkItems;
+    size_t localWrkItems;
     std::vector<std::string>  kernelFiles;
+    std::string file = "string_search.cl";
     kernelFiles.push_back(file);
 
     //Test specific variables
-    long numComputeUnits;
+    size_t numComputeUnits;
     size_t  maxGrpSize, localMemSize, preferredWrkSize;
 
     cl.init();
@@ -77,10 +75,14 @@ int main(int argc, char* argv[])
     maxGrpSize          = cl.getMaxWorkGroupSize();
     localMemSize        = cl.getLocalMemSize();
 
-    std::cout<<"Number of Compute Units   : "<<numComputeUnits<<std::endl
-            <<"Max Work Group Size       : "<<maxGrpSize<<std::endl
-           <<"Local Memory Size         : "<<localMemSize/1024<<"k"<<std::endl;
+    globalWrkItems = numComputeUnits * maxGrpSize;
+    localWrkItems = maxGrpSize;
 
+    std::cout<<"Number of Compute Units   : "<<numComputeUnits<<std::endl
+             <<"Max Work Group Size       : "<<maxGrpSize<<std::endl
+             <<"Local Memory Size         : "<<localMemSize/1024<<"k"<<std::endl;
+
+//=========================================================================
     //    Argument 2
     std::string textFile("string_search.txt");
     char *textBuffer = NULL;
@@ -90,28 +92,35 @@ int main(int argc, char* argv[])
     iv::Buffer* dTextBuffer;
     dTextBuffer = cl.createBuffer(textSize, CL_MEM_READ_ONLY |CL_MEM_COPY_HOST_PTR, textBuffer);
 
-    std::cout<<"Text file size :" << textSize <<std::endl;
+    std::cout<<"\nText file size :" << textSize <<std::endl;
     //Argument 1
+    /// @TIPS:  C++ taken the last array data as NULL not in C
     char pattern[16] = "thatwithhavefro";
-    //Set the kernel argument directly
+    /// @TIPS: Hack to insert 16th letter in char array in C++
+    pattern[15]='m';
 
     //Argument 3
-    int charPerItem = (textSize /(numComputeUnits * maxGrpSize)) + 1;
+    int charPerItem = (textSize / globalWrkItems) + 1;
     std::cout<<"Characters per item :" << charPerItem <<std::endl;
 
     //Argument 4
-    int result[4] = {1, 0, 0, 0};
+    int result[4] = {0, 0, 0, 0};
     iv::Buffer* dResult = cl.createBuffer(sizeof(result), CL_MEM_READ_WRITE  | CL_MEM_COPY_HOST_PTR, result);
 
-
+//=========================================================================
     pProgram = cl.createProgram(kernelFiles);
     pProgram->buildProgram();
 
     std::string kernelName = "string_search";
     pKl      = pProgram->createKernelLauncher(kernelName);
 
-    pKl->pGlobal(numComputeUnits)->pLocal(maxGrpSize);
-    pKl->pArg(pattern)->pArg(dTextBuffer->getMem())->pArg(charPerItem)->pArg(dResult->getMem());
+
+    pKl->pGlobal(globalWrkItems)->pLocal(localWrkItems);
+    pKl->pArg(pattern)
+       ->pArg(dTextBuffer->getMem())
+       ->pArg(charPerItem)
+       ->pArg(dResult->getMem());
+
     pKl->run();
 
     dResult->read(result, sizeof(result));

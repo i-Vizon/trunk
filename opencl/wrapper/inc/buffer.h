@@ -54,7 +54,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include <common.h>
+#include <iv_common.h>
 #include <CL/cl.h>
 
 namespace iv

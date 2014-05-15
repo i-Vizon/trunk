@@ -90,7 +90,7 @@ int main()
      */
     cv::cvtColor(sourceImageData, sourceImageData, cv::COLOR_BGRA2GRAY);
     cv::imshow("Image Rotate", sourceImageData);
-    cv::waitKey();
+
     uint H = sourceImageData.size().height;
     uint W = sourceImageData.size().width;
     cout<<H<<W<<"\n\n\n";
@@ -109,7 +109,8 @@ int main()
     dDstImageData->read(sourceImageData.data,
                         sizeof(uchar) * W * H);
 
-    cv::imshow("Image Rotate", sourceImageData);
+    cv::waitKey();
+    cv::imshow("CL Output", sourceImageData);
     cv::waitKey();
 
     return 0;

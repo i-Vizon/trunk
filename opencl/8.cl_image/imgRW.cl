@@ -7,4 +7,5 @@ __kernel void magesTest(read_only image2d_t src, write_only image2d_t dst)
 
     float4 pixel = read_imagef(src, sampler, (int2)(x,y));
     write_imagef(dst, (int2)(x,y), pixel);
+    //write_imagef(dst, (int2)(x,y), (float4)(pixel.z, pixel.y, pixel.x, pixel.w));
 }

@@ -58,7 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * Enable CL_INFO_PRINT macro to see OpenCL Device and Kernel Info
  *
  */
-#include <common.h>
+#include <iv_common.h>
 #include <CL/cl.h>
 #include <CL/cl.hpp>
 
@@ -82,12 +82,18 @@ public:
     void getContextnQueue();
     //Program* createProgram(std::string &kernelFilePath);
     Program* createProgram(std::vector<std::string> kernelFilePath);
-    Buffer* createBuffer(const size_t size, const cl_mem_flags flags, void* hostMem);
-    Image2D* createImage2D(const size_t width, const size_t height, const size_t rowPitch,
-                           const cl_mem_flags flags,
+    Buffer* createBuffer(const size_t size,
+                         const cl_mem_flags flags,
+                         void* hostMem);
+    Image2D* createImage2D(const size_t width,
+                           const size_t height,
                            const cl_image_format* format,
+                           const cl_mem_flags flags = 0,
+                           const size_t rowPitch = 0,
                            void* hostMem = NULL);
-    Sampler* createSampler(cl_bool normalizedCoords, cl_addressing_mode addrMode, cl_filter_mode filterMode);
+    Sampler* createSampler(cl_bool normalizedCoords,
+                           cl_addressing_mode addrMode,
+                           cl_filter_mode filterMode);
     //>>>>>>>>>>>>>>>>>Get Info
     int getNumberOfPlatforms()
     {
@@ -95,12 +101,13 @@ public:
     }
     void getDeviceName()
     {
-        //        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, NULL, NULL, &_infoCLSize);
-        //        _infoName = (char*)malloc(sizeof(char)*_infoCLSize);
-        //        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, sizeof(char) * _infoCLSize, _infoName, NULL );
-        //        std::cout<<"CL_PLATFORM_NAME          : "<<_infoName<<std::endl;
-        //        free(_infoName);
-
+        char*   infoName;
+        size_t  infoCLSize;
+        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, NULL, NULL, &infoCLSize);
+        infoName = (char*)malloc(sizeof(char)*infoCLSize);
+        clGetPlatformInfo(_platformID,CL_PLATFORM_NAME, sizeof(char) * infoCLSize, infoName, NULL );
+        std::cout<<"CL_PLATFORM_NAME          : "<<infoName<<std::endl;
+        free(infoName);
     }
     int getNumberOfDevices()
     {
@@ -115,7 +122,7 @@ public:
     ///        Eg: Vivante GC2000 : 4 *
     /// \return Maximum Compute Units available in your GPU in size_t
 
-    size_t getMaxComputeUnits()
+    cl_uint getMaxComputeUnits()
     {
         return _maxComputeUnits;
     }
@@ -139,13 +146,24 @@ public:
     ///
     /// \return
     ///
-    size_t getLocalMemSize()
+    cl_ulong getLocalMemSize()
     {
         return _localMemSize;
     }
     size_t getPrefferedWorkGroupSize()
     {
         return _preferredWorkGrpSize;
+    }
+
+    void getSupportedExtensions()
+    {
+        size_t infoCLSize;
+        char* infoExtensions;
+        clGetPlatformInfo(_platformID,CL_PLATFORM_EXTENSIONS, NULL, NULL, &infoCLSize);
+        infoExtensions = (char*)malloc(sizeof(char)*infoCLSize);
+        clGetPlatformInfo(_platformID,CL_PLATFORM_EXTENSIONS, sizeof(char) * infoCLSize, infoExtensions, NULL );
+        std::cout<<"CL_PLATFORM_EXTENSIONS          : "<<infoExtensions<<std::endl;
+        free(infoExtensions);
     }
 
     ~CLSetup()
@@ -159,9 +177,6 @@ private:
     //>>>>>>>>>>>>>>>>>Info Members
     cl_int          _status;
     cl_long         _infoValue;
-    char*           _infoName;
-    size_t          _infoCLSize;
-
 
     //>>>>>>>>>>>>>>>>>Platform Members
     cl_uint         _numPlatforms;
@@ -175,13 +190,16 @@ private:
     //>>>>>>>>>>>>>>>>>Device Members
     cl_uint         _numDevices;
     cl_device_id    _deviceID;
-    size_t        _maxComputeUnits;
-    size_t        _maxWorkGroupSize;
-    size_t        _maxMemAllocSize;
-    size_t        _globalMemSize;
-    size_t        _constMemSize;
-    size_t        _localMemSize;
-    size_t        _preferredWorkGrpSize;
+
+    cl_uint         _maxComputeUnits;
+    size_t          _maxWorkGroupSize;
+    cl_ulong        _maxMemAllocSize;
+    cl_ulong        _globalMemSize;
+    cl_ulong        _constMemSize;
+    cl_ulong        _localMemSize;
+    size_t          _preferredWorkGrpSize;
+
+
 
     //>>>>>>>>>>>>>>>>>Context Members
     cl_context      _context;
@@ -199,6 +217,9 @@ private:
     size_t      _perferredWrkGrpSize;
     cl_ulong    _localMem;
     cl_ulong    _privateMem;
+
+    //>>>>>>>>>>>>>>>>>Image2D Members
+    cl_mem im2d;
 
 
 };

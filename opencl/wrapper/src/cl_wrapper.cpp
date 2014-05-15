@@ -71,7 +71,7 @@ void CLSetup::getPlatformID()
     _status =clGetPlatformIDs(1, &_platformID, NULL);
     DEBUG_CL(_status);
 
-    //!TODO: Multiple Platforms
+    /// !TODO: Multiple Platforms
     //    cl_platform_id* _platformID;
     //    _status = clGetPlatformIDs(NUMBER_OF_PLATFORMS, NULL, &_numPlatforms);
     //    DEBUG_CL(_status);
@@ -83,20 +83,21 @@ void CLSetup::getPlatformID()
 
 void CLSetup::getDeviceID()
 {
-    //!TODO: For Multiple Devices
+    /// !TODO: For Multiple Devices
     _status = clGetDeviceIDs(_platformID,CL_DEVICE_TYPE_GPU, 1, NULL, &_numDevices);
     DEBUG_CL(_status);
     _status = clGetDeviceIDs(_platformID, CL_DEVICE_TYPE_GPU, 1, &_deviceID, NULL);
     DEBUG_CL(_status);
 
     // Getting some information about the device
+    // Getting some information about the device
     clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &_maxComputeUnits, NULL);
+    std::cout<<"\nCL_DEVICE_MAX_COMPUTE_UNITS: "<<_maxComputeUnits<<std::endl;
     clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &_maxWorkGroupSize, NULL);
     clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(cl_ulong), &_maxMemAllocSize, NULL);
     clGetDeviceInfo(_deviceID, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong), &_globalMemSize, NULL);
     clGetDeviceInfo(_deviceID, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, sizeof(cl_ulong), &_constMemSize, NULL);
     clGetDeviceInfo(_deviceID, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), &_localMemSize, NULL);
-    //clGetDeviceInfo(_deviceID, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(cl_ulong), &_preferredWorkGrpSize, NULL);
     ///!TODO:Add get KernelInfo APIs
 
 }
@@ -118,11 +119,13 @@ Program *CLSetup::createProgram(std::vector<std::string> kernelFilePath)
 //Program *CLSetup::createProgram(std::string& kernelFilePath)
 {
     ///!TODO: Add support for char** along with string
-    Program* tmp = new Program(kernelFilePath, &_context, &_queue, &_deviceID);
+    Program* tmp = new Program(kernelFilePath, &_context, &_queue,
+                               &_deviceID);
     return tmp;
 }
 
-Buffer* CLSetup::createBuffer(const size_t size, const cl_mem_flags flags, void *hostMem)
+Buffer* CLSetup::createBuffer(const size_t size, const cl_mem_flags flags,
+                              void *hostMem)
 {
     cl_mem buff = clCreateBuffer(_context,flags, size, hostMem ,&_status);
     if(_status == CL_SUCCESS)
@@ -134,19 +137,39 @@ Buffer* CLSetup::createBuffer(const size_t size, const cl_mem_flags flags, void 
     return NULL; //TODO: Return custom status value
 }
 
-Image2D *CLSetup::createImage2D(const size_t width, const size_t height, const size_t rowPitch, const cl_mem_flags flags, const cl_image_format *format, void *hostMem)
+/// @TIPS: Don't give step value for CL_MEM_WRITE_ONLY
+Image2D *CLSetup::createImage2D(const size_t width, const size_t height, const cl_image_format *format,
+                                const cl_mem_flags flags, const size_t rowPitch, void *hostMem)
 {
     cl_int err = 0;
-    cl_mem im2d = clCreateImage2D(_context, flags, format, width, height, rowPitch, hostMem, &_status);
+//    clCreateImage2D(cl_context              /* context */,
+//                    cl_mem_flags            /* flags */,
+//                    const cl_image_format * /* image_format */,
+//                    size_t                  /* image_width */,
+//                    size_t                  /* image_height */,
+//                    size_t                  /* image_row_pitch */,
+//                    void *                  /* host_ptr */,
+//                    cl_int *                /* errcode_ret */)
+    std::cout<<"\n=====>Image2D flags:"<<flags<<"\n";
+    im2d = clCreateImage2D(_context,
+                           flags,format,
+                           width, height,
+                           rowPitch,
+                           hostMem, &_status);
+
+    printf("\n1. Image2D im2d create: %d",im2d);
     DEBUG_CL(_status);
-    Image2D* ret = new Image2D(im2d, rowPitch, &_queue);
+    Image2D* ret = new Image2D(im2d, &_queue, rowPitch);
     return ret;
 }
 
-Sampler* CLSetup::createSampler(cl_bool normalizedCoords, cl_addressing_mode addrMode, cl_filter_mode filterMode)
+Sampler* CLSetup::createSampler(cl_bool normalizedCoords,
+                                cl_addressing_mode addrMode,
+                                cl_filter_mode filterMode)
 {
     cl_int err =0;
-    Sampler* ret = new  Sampler(&_context, normalizedCoords, addrMode, filterMode);
+    Sampler* ret = new  Sampler(&_context, normalizedCoords,
+                                addrMode, filterMode);
     return ret;
 }
 

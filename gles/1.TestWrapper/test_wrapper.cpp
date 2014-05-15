@@ -1,4 +1,6 @@
-#include <GLESWrapper.h>
+#include <iv_gles_wrapper.h>
+#include <opencv2/highgui/highgui.hpp>
+#include "banana.h"
 
 class TestWrapper : public iv::GLESWrapper
 {
@@ -147,6 +149,14 @@ void TestWrapper::drawFrames()
     glVertexAttribPointer ( _u32uTextureLoc, 2, GL_FLOAT, GL_FALSE, 0, vTexCoord);
     glEnableVertexAttribArray ( _u32uTextureLoc );
 
+    //Banna
+    // Load the vertex position
+//    glVertexAttribPointer ( _u32aPositionLoc, 3, GL_FLOAT, GL_FALSE, 0, bananaVerts );
+//    glEnableVertexAttribArray ( _u32aPositionLoc );
+//    // Load the texture coordinate
+//    glVertexAttribPointer ( _u32uTextureLoc, 2, GL_FLOAT, GL_FALSE, 0, bananaTexCoords);
+//    glEnableVertexAttribArray ( _u32uTextureLoc );
+
     // Bind the base map
     glActiveTexture ( GL_TEXTURE0);
     glBindTexture ( GL_TEXTURE_2D, _u32aTextures[0] );
@@ -155,6 +165,8 @@ void TestWrapper::drawFrames()
     glUniform1i ( _u32uTextureLoc, 0 );
 
     glDrawElements ( GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices );
+    //banna
+     //glDrawElements ( GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, bananaNumVerts );
 
 }
 

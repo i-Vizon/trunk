@@ -1,4 +1,4 @@
-#include <Common.h>
+#include <common.h>
 #include <GLESWrapper.h>
 
 //We will try to learn the 3D Maths of Projection and Tranformation

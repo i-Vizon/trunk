@@ -23,7 +23,7 @@ __kernel void string_search(char16 pattern, __global char* text,
 
       /* compare text vector and pattern */
       check_vector = text_vector == pattern;
-       local_result[0] = item_offset;
+
       /* Check for 'that' */
       if(all(check_vector.s0123))
          atomic_inc(local_result);

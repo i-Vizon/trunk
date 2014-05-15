@@ -80,7 +80,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GLES2/gl2ext.h>
 #include <GLES2/gl2platform.h>
 
-#include <Common.h>
+#include <iv_common.h>
 namespace iv
 {
 
