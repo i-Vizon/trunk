@@ -80,6 +80,7 @@ ASSUMPTIONS:
 ============
 *You are familiar with linux environment
 *You know to use QtCreator for C++ projects
+*Git is cloned in /opt/i-vizon/trunk
 
 To Start:
 =========
