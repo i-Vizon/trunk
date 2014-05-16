@@ -127,7 +127,7 @@ public:
     template<class T>
     KernelLauncher* pArg(T &x) {
         int nArgs = countArgs();
-        if (nArgs >= _numArgs) {
+        if (nArgs > _numArgs) {
             std::cout << "Error trying to enqueue too much arguments" << std::endl;
             std::cout << "Expected " << _numArgs << ", got " << nArgs << std::endl;
             exit(-1);///!TODO: Custom exit code

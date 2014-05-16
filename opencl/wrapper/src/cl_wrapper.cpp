@@ -142,21 +142,13 @@ Image2D *CLSetup::createImage2D(const size_t width, const size_t height, const c
                                 const cl_mem_flags flags, const size_t rowPitch, void *hostMem)
 {
     cl_int err = 0;
-//    clCreateImage2D(cl_context              /* context */,
-//                    cl_mem_flags            /* flags */,
-//                    const cl_image_format * /* image_format */,
-//                    size_t                  /* image_width */,
-//                    size_t                  /* image_height */,
-//                    size_t                  /* image_row_pitch */,
-//                    void *                  /* host_ptr */,
-//                    cl_int *                /* errcode_ret */)
-    DEBUG_VALUE("Image2D flags:",flags);
     im2d = clCreateImage2D(_context,
                            flags,format,
                            width, height,
                            rowPitch,
                            hostMem, &_status);
-    DEBUG_VALUE("1. Image2D im2d create:",im2d);
+    DEBUG_STRING("createImage2D");
+    DEBUG_VALUE("Image2D im2d create:",im2d);
     DEBUG_CL(_status);
     Image2D* ret = new Image2D(im2d, &_queue, rowPitch);
     return ret;

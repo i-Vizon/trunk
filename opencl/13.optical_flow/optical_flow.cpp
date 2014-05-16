@@ -51,7 +51,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * =============================================================================
 */
 
-#define USE_CAMERA 1
+#define USE_CAMERA 0
+
 #include <cl_wrapper.hpp>
 #include <cv_wrapper.h>
 
@@ -69,7 +70,95 @@ int main(int argc, char* argv[])
     prog = cl.createProgram(kernelFiles);
     prog->buildProgram();
     kl = prog->createKernelLauncher("optical_flow");
+
 #if USE_CAMERA
+    //============================= CV Setup
+    cv::VideoCapture cap(-1);
+    cv::Mat previousFrame;
+
+    int width, height, step;
+    char key;
+
+    cap.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
+    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
+
+    cap >> previousFrame;
+    cv::cvtColor(previousFrame, previousFrame, CV_BGR2BGRA);
+
+    // Initialize the resultatnt matrix
+    // with input frame parameters
+    cv::Mat currentFrame(previousFrame.size(),previousFrame.type());;
+    cv::Mat opticalFrame(previousFrame.size(),previousFrame.type());;
+    currentFrame = previousFrame.clone();
+    opticalFrame = previousFrame.clone();
+
+    width   =   previousFrame.size().width;
+    height  =   previousFrame.size().height;
+    step    =   previousFrame.step;
+
+    DEBUG_VALUE("Image Width    : ", width);
+    DEBUG_VALUE("Image Height   : ", height);
+    DEBUG_VALUE("Image Step     : ", step);
+    DEBUG_VALUE("Image Type     : ", getImgType(previousFrame.type()));
+
+    //============================= Kernal Variables
+    cl_image_format frameFormat;
+    frameFormat.image_channel_data_type = CL_UNORM_INT8;
+    frameFormat.image_channel_order = CL_RGBA;
+
+    // Offset within the image to copy from
+    size_t origin[3] = {0, 0, 0};
+    // Elements to per dimension
+    size_t region[3] = {previousFrame.size().width, previousFrame.size().height, 1};
+
+    iv::Image2D* devFrameBuffer1 = cl.createImage2D(width, height,
+                                                    &frameFormat,
+                                                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                                    step,
+                                                    previousFrame.data);
+    iv::Image2D* devFrameBuffer2 = cl.createImage2D(width, height,
+                                                    &frameFormat,
+                                                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                                    step,
+                                                    previousFrame.data);
+    iv::Image2D* devFrameResult = cl.createImage2D(width, height,
+                                                   &frameFormat,
+                                                   CL_MEM_WRITE_ONLY);
+
+    float scale = 10;
+    float offset = 5;
+    float lambda = 0.0025;
+    float threshold = 1.0;
+
+    while(key != 27)
+    {
+        cap >> currentFrame;
+        cv::cvtColor(currentFrame, currentFrame, CV_BGR2BGRA);
+
+        devFrameBuffer1->write(previousFrame.data, origin, region);
+        devFrameBuffer2->write(currentFrame.data, origin, region);
+
+        //============================= Run Kernal
+        kl->pGlobal(width, height)->pLocal(4,4);
+        kl->pArg(devFrameBuffer1->getMem())
+                ->pArg(devFrameBuffer2->getMem())
+                ->pArg(devFrameResult->getMem())
+                ->pArg(scale)
+                ->pArg(offset)
+                ->pArg(lambda)
+                ->pArg(threshold);
+        kl->run();
+
+        //============================= Read Kernal output
+        devFrameResult->read(opticalFrame.data, origin, region);
+
+        cv::imshow("Camera Frames", currentFrame);
+        cv::imshow("Otical Flow", opticalFrame);
+        key = cv::waitKey(10);
+
+        currentFrame.copyTo(previousFrame);
+    }
+#else
     //============================= CV Setup
     cv::Mat pngFile1;
     cv::Mat pngFile2;
@@ -94,6 +183,7 @@ int main(int argc, char* argv[])
     if(pngFile1.cols != pngFile2.cols && pngFile1.rows != pngFile2.rows)
         ERROR_PRINT_STRING("Please choose images of same size");
 
+
     width   =   pngFile1.size().width;
     height  =   pngFile1.size().height;
     step    =   pngFile1.step;
@@ -108,6 +198,11 @@ int main(int argc, char* argv[])
     pngFormat.image_channel_data_type = CL_UNORM_INT8;
     pngFormat.image_channel_order = CL_RGBA;
 
+    // Offset within the image to copy from
+    size_t origin[3] = {0, 0, 0};
+    // Elements to per dimension
+    size_t region[3] = {pngFile1.size().width, pngFile1.size().height, 1};
+
 
     iv::Image2D* pngBuffer1 = cl.createImage2D(width, height,
                                                &pngFormat,
@@ -117,13 +212,16 @@ int main(int argc, char* argv[])
 
     iv::Image2D* pngBuffer2 = cl.createImage2D(width, height,
                                                &pngFormat,
-                                               CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                               CL_MEM_READ_ONLY,
                                                step,
                                                pngFile2.data);
 
     iv::Image2D* pngResult = cl.createImage2D(width, height,
                                               &pngFormat,
                                               CL_MEM_WRITE_ONLY);
+
+    pngBuffer2->write(pngFile2.data, origin, region); // To test the write API
+
     float scale = 10;
     float offset = 5;
     float lambda = 0.005;
@@ -143,105 +241,11 @@ int main(int argc, char* argv[])
     kl->run();
 
     //============================= Read Kernal output
-    // Offset within the image to copy from
-    size_t origin[3] = {0, 0, 0};
-    // Elements to per dimension
-    size_t region[3] = {pngFile1.size().width, pngFile1.size().height, 1};
-
     pngResult->read(pngFile2.data, origin, region);\
 
     cv::imshow("Optical Flow", pngFile2);
     DEBUG_VALUE("Resultant Optical Matrix", pngFile2);
     cv::waitKey();
-#else
-    //============================= CV Setup
-    cv::VideoCapture cap(-1);
-    cv::Mat previousFrame;
-    cv::Mat currentFrame;
-    int width, height, step;
-    char key;
-    cap.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
-    cap >> previousFrame;
-    cv::cvtColor(previousFrame, previousFrame, CV_BGR2BGRA);
 
-    width   =   previousFrame.size().width;
-    height  =   previousFrame.size().height;
-    step    =   previousFrame.step;
-
-    DEBUG_VALUE("Image Width    : ", width);
-    DEBUG_VALUE("Image Height   : ", height);
-    DEBUG_VALUE("Image Step     : ", step);
-    DEBUG_VALUE("Image Type     : ", getImgType(previousFrame.type()));
-
-    //============================= Kernal Variables
-    cl_image_format frameFormat;
-    frameFormat.image_channel_data_type = CL_UNORM_INT8;
-    frameFormat.image_channel_order = CL_RGBA;
-
-    iv::Image2D* pngBuffer1 = cl.createImage2D(width, height,
-                                               &frameFormat,
-                                               CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                               step,
-                                               previousFrame.data);
-
-    iv::Image2D* pngBuffer2 = cl.createImage2D(width, height,
-                                               &frameFormat,
-                                               CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                               step,
-                                               previousFrame.data);
-
-    iv::Image2D* pngResult = cl.createImage2D(width, height,
-                                              &frameFormat,
-                                              CL_MEM_WRITE_ONLY);
-
-    float scale = 10;
-    float offset = 2;
-    float lambda = 0.005;
-    float threshold = 1.0;
-
-    while(key != 27)
-    {
-        cap >> currentFrame;
-        cv::cvtColor(currentFrame, currentFrame, CV_BGR2BGRA);
-
-
-        cv::imshow("Camera Frames", currentFrame);
-        key = cv::waitKey(10);
-
-        previousFrame = currentFrame;
-    }
-
-
-
-
-    //    //============================= Run Kernal
-    //    kl->pGlobal(width, height)->pLocal(4,4);
-
-    //    kl->pArg(pngBuffer1->getMem())
-    //            ->pArg(pngBuffer2->getMem())
-    //            ->pArg(pngResult->getMem())
-    //            ->pArg(scale)
-    //            ->pArg(offset)
-    //            ->pArg(lambda)
-    //            ->pArg(threshold);
-
-
-    //    kl->run();
-
-    //    //============================= Read Kernal output
-    //    // Offset within the image to copy from
-    //    size_t origin[3] = {0, 0, 0};
-    //    // Elements to per dimension
-    //    size_t region[3] = {pngFile1.size().width, pngFile1.size().height, 1};
-
-    //    pngResult->read(pngFile2.data, origin, region);\
-
-    //    cv::imshow("Result PNG", pngFile2);
-    //    DEBUG_VALUE("Resultant Optical Matrix", pngFile2);
-    //    cv::waitKey();
 #endif
-
-
-
 }

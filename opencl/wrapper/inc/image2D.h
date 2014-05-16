@@ -58,29 +58,82 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "buffer.h"
 namespace iv
 {
+/**
+ * @brief
+ *
+ */
 class Image2D : public Buffer
 {
-    public:
-        Image2D(cl_mem mem, cl_command_queue* queue, int rowPitch = 0);
-        void read(void* hostMem, const size_t size[2],
-                  const size_t offset[2], cl_bool blocking = CL_TRUE);
-        void write(void* hostMem, const size_t size[2],
-                   const size_t offset[2], cl_bool blocking = CL_TRUE);
-        void* map(cl_map_flags flags, const size_t size[2],
-                  const size_t offset[2], size_t& rowPitch, cl_bool blocking = CL_TRUE);
-        void copyToBuffer(Buffer& dst, const size_t size[2],
-                          const size_t srcOffset[2], const size_t dstOffset = 0);
-        void* getInfo(const cl_image_info paramName);
-        ~Image2D()
-        {
+public:
+    /**
+ * @brief
+ *
+ * @param mem
+ * @param queue
+ * @param rowPitch
+ */
+    Image2D(cl_mem mem, cl_command_queue* queue, int rowPitch = 0);
+    /**
+         * @brief
+         *
+         * @param hostMem
+         * @param size[]
+         * @param offset[]
+         * @param blocking
+         */
+    void read(void* hostMem, const size_t size[2],
+    const size_t offset[2], cl_bool blocking = CL_TRUE);
+    /**
+         * @brief
+         *
+         * @param hostMem
+         * @param size[]
+         * @param offset[]
+         * @param blocking
+         */
+    void write(void* hostMem, const size_t size[2],
+    const size_t offset[2], cl_bool blocking = CL_TRUE);
+    /**
+         * @brief
+         *
+         * @param flags
+         * @param size[]
+         * @param offset[]
+         * @param rowPitch
+         * @param blocking
+         */
+    void* map(cl_map_flags flags, const size_t size[2],
+    const size_t offset[2], size_t& rowPitch, cl_bool blocking = CL_TRUE);
+    /**
+         * @brief
+         *
+         * @param dst
+         * @param size[]
+         * @param srcOffset[]
+         * @param dstOffset
+         */
+    void copyToBuffer(Buffer& dst, const size_t size[2],
+    const size_t srcOffset[2], const size_t dstOffset = 0);
+    /**
+         * @brief
+         *
+         * @param paramName
+         */
+    void* getInfo(const cl_image_info paramName);
+    /**
+         * @brief
+         *
+         */
+    ~Image2D()
+    {
 
-        }
+    }
 
-    protected:
-        size_t _rowPitch;
-        cl_int _status;
+protected:
+    size_t _rowPitch;
+    cl_int _status;
 
-    private:
+private:
 };
 
 

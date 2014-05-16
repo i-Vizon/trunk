@@ -96,7 +96,7 @@ std::string getImgType(int imgTypeInt);
     std::cout<<"=====>"<<"   " <<dbgMsg<<"......."<<value<<std::endl;
 
 #define DEBUG_STRING(dbgMsg)    \
-    std::cout<<"=====>"<<dbgMsg<<std::endl;
+    std::cout<<">>>>>>"<<dbgMsg<<std::endl;
 
 #define ERROR_PRINT_VALUE(dbgMsg, value)    \
     { \

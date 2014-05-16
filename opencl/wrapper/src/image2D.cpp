@@ -64,24 +64,14 @@ iv::Image2D::Image2D(cl_mem mem, cl_command_queue *queue, int rowStep)
     :Buffer(mem, queue)
 {
     //Needed to copy the right amount of data back to the memory
-     printf("\n2. Image2D mem transfered: %d\n",mem);
+    DEBUG_VALUE("Image2D::Image2D Constructor: ", mem);
     this->_rowPitch = rowStep;
 }
 
 void iv::Image2D::read(void *hostMem, const size_t origin[], const size_t region[], cl_bool blocking)
 {
-//    clEnqueueReadImage(cl_command_queue     /* command_queue */,
-//                       cl_mem               /* image */,
-//                       cl_bool              /* blocking_read */,
-//                       const size_t *       /* origin[3] */,
-//                       const size_t *       /* region[3] */,
-//                       size_t               /* row_pitch */,
-//                       size_t               /* slice_pitch */,
-//                       void *               /* ptr */,
-//                       cl_uint              /* num_events_in_wait_list */,
-//                       const cl_event *     /* event_wait_list */,
-//                       cl_event *           /* event */)
-    DEBUG_VALUE("4. Image2D read _memory create:",_memory);
+    DEBUG_STRING("Image2D::read");
+    DEBUG_VALUE("memory :",_memory);
     cl_int err = 0;
     DEBUG_STRING("Image Region:");
     DEBUG_VALUE("Width :" , region[0]);
@@ -116,18 +106,8 @@ void iv::Image2D::read(void *hostMem, const size_t origin[], const size_t region
 void iv::Image2D:: write(void *hostMem, const size_t origin[], const size_t region[], cl_bool blocking)
 {
     cl_int err = 0;
-//    clEnqueueWriteImage(cl_command_queue    /* command_queue */,
-//                        cl_mem              /* image */,
-//                        cl_bool             /* blocking_write */,
-//                        const size_t *      /* origin[3] */,
-//                        const size_t *      /* region[3] */,
-//                        size_t              /* input_row_pitch */,
-//                        size_t              /* input_slice_pitch */,
-//                        const void *        /* ptr */,
-//                        cl_uint             /* num_events_in_wait_list */,
-//                        const cl_event *    /* event_wait_list */,
-//                        cl_event *          /* event */)
-    printf("\n3. Image2D _memory create: %d\n",_memory);
+    DEBUG_STRING("Image2D:: write");
+    DEBUG_VALUE("Image2D _memory write:",_memory);
     err = clEnqueueWriteImage(*_pQueue, _memory, blocking, origin,
                               region, _rowPitch, 0,
                               hostMem, 0, NULL, NULL);

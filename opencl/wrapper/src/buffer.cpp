@@ -75,7 +75,9 @@ void Buffer::read(void *hostMem, const size_t size, const size_t offset, const c
 
 void Buffer::write(const void *hostMem, const size_t size, const size_t offset, const cl_bool blocking)
 {
-
+    cl_int status = 0;
+    status = clEnqueueWriteBuffer(*_pQueue, _memory, blocking, offset, size, hostMem, 0, NULL, NULL);
+    DEBUG_CL(status);
 }
 
 void Buffer::copy(Buffer &dst, const size_t size, const size_t srcOffset, const size_t dstOffset)
@@ -103,4 +105,4 @@ void Buffer::copyToImage3D(Image2D &dst, const size_t size[], const size_t srcOf
 
 }
 
-}
+} //end of namespace
