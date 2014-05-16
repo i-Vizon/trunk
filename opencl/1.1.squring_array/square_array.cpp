@@ -1,4 +1,5 @@
 #include <cl_wrapper.hpp>
+#include <iv_profiler.h>
 #include <math.h>
 #include <time.h>
 
@@ -10,6 +11,7 @@
 int main()
 {
     std::cout << "Squaring an array using OpenCL kernels" << std::endl;
+    iv::Profiler cpuTime;
     struct timespec startTime, endTime;
     double cpuProfiling, gpuProfiling, profileDifference;
     double efficiency;
@@ -22,13 +24,22 @@ int main()
     if(clock_gettime(CLOCK_REALTIME, &startTime))
         DEBUG_STRING("Error: clock_getres");
 
+    //Testing iv::Profiler API
+    cpuTime.startProfiler();
+
     for(i=0; i<NUM_ELEMENTS; i++)
         b[i] = sqrt(a[i]);
+
+    //Testing iv::Profiler API
+    cpuTime.endProfiler();
 
     if(clock_gettime (CLOCK_REALTIME, &endTime))
         DEBUG_STRING("Error: clock_getres");
 
     cpuProfiling = endTime.tv_nsec - startTime.tv_nsec;
+
+    //Testing iv::Profiler API
+    DEBUG_VALUE("Timer Value :", cpuTime.elapsedTimeInNanosecs());
 
     std::cout<<"\nCPU resuilts :"<<std::endl;
 //    for(i=0; i<NUM_ELEMENTS; i++)

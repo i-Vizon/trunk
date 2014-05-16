@@ -48,9 +48,11 @@ DATA            = $$IVIZON_TRUNK/data
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Common
 
-HEADERS += $$COMMON/inc/iv_common.h
+HEADERS += $$COMMON/inc/iv_common.h \
+            $$COMMON/inc/iv_profiler.h
 
-SOURCES += $$COMMON/src/iv_common.cpp
+SOURCES += $$COMMON/src/iv_common.cpp \
+            $$COMMON/src/iv_profiler.cpp
 
 INCLUDEPATH += $$COMMON/inc/
 
