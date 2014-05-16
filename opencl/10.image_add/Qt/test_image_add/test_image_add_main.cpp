@@ -62,31 +62,31 @@ int main()
     std::cout << "Learning adding Two Images in OpenCL" << std::endl;
 
     //Assuming both the image sizes are same
-    cv::Mat pngFile1;
-    cv::Mat pngFile2;
+    cv::Mat file1;
+    cv::Mat file2;
     int width, height, step;
 
-    pngFile1    =   cv::imread("nature.jpeg");
-    pngFile2    =   cv::imread("shiva2.jpg");
+    file1    =   cv::imread("nature.jpeg");
+    file2    =   cv::imread("shiva2.jpg");
 
-    cv::cvtColor(pngFile1, pngFile1, CV_BGR2BGRA);
-    cv::cvtColor(pngFile2, pngFile2, CV_BGR2BGRA);
+    cv::cvtColor(file1, file1, CV_BGR2BGRA);
+    cv::cvtColor(file2, file2, CV_BGR2BGRA);
 
-    if(pngFile1.cols != pngFile2.cols && pngFile1.rows != pngFile2.rows)
+    if(file1.cols != file2.cols && file1.rows != file2.rows)
         ERROR_PRINT_STRING("Please choose images of same size");
 
-    width   =   pngFile1.size().width;
-    height  =   pngFile1.size().height;
-    step    =   pngFile1.step;
+    width   =   file1.size().width;
+    height  =   file1.size().height;
+    step    =   file1.step;
 
     DEBUG_VALUE("Image Width    : ", width);
     DEBUG_VALUE("Image Height   : ", height);
     DEBUG_VALUE("Image Step     : ", step);
-    DEBUG_VALUE("Image Type     : ", getImgType(pngFile1.type()));
+    DEBUG_VALUE("Image Type     : ", getImgType(file1.type()));
     //std::string getImgType(int imgTypeInt)
 
-    cv::imshow("1.PNG", pngFile1);
-    cv::imshow("2.PNG", pngFile2);
+    cv::imshow("1.PNG", file1);
+    cv::imshow("2.PNG", file2);
     cv::waitKey();
 
     iv::CLSetup         cl;
@@ -111,13 +111,13 @@ int main()
                                          &pngFormat,
                                          CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                                          step,
-                                         pngFile1.data);
+                                         file1.data);
 
     iv::Image2D* pngBuffer2 = cl.createImage2D(width, height,
                                          &pngFormat,
                                          CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                                          step,
-                                         pngFile2.data);
+                                         file2.data);
 
     iv::Image2D* pngResult = cl.createImage2D(width, height,
                                               &pngFormat,
@@ -136,11 +136,11 @@ int main()
     // Offset within the image to copy from
     size_t origin[3] = {0, 0, 0};
     // Elements to per dimension
-    size_t region[3] = {pngFile1.size().width, pngFile1.size().height, 1};
+    size_t region[3] = {file1.size().width, file1.size().height, 1};
 
-    pngResult->read(pngFile1.data, origin, region);\
+    pngResult->read(file1.data, origin, region);\
 
-    cv::imshow("Result PNG", pngFile1);
+    cv::imshow("Result PNG", file1);
     cv::waitKey();
 
 

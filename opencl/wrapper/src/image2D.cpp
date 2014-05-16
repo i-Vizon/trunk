@@ -81,19 +81,22 @@ void iv::Image2D::read(void *hostMem, const size_t origin[], const size_t region
 //                       cl_uint              /* num_events_in_wait_list */,
 //                       const cl_event *     /* event_wait_list */,
 //                       cl_event *           /* event */)
-     printf("\n4. Image2D read _memory create: %d\n",_memory);
+    DEBUG_VALUE("4. Image2D read _memory create:",_memory);
     cl_int err = 0;
-    std::cout<<"Image width, height  & depth"
-             <<region[0]<<" "
-             <<region[1]<<" "
-             <<region[2]<<" "
-             <<"Row pitch is: "<<_rowPitch<<std::endl;
-    std::cout<<"Image porigin"
-             <<origin[0]<<" "
-             <<origin[1]<<" "
-             <<origin[2]<<std::endl;
+    DEBUG_STRING("Image Region:");
+    DEBUG_VALUE("Width :" , region[0]);
+    DEBUG_VALUE("Height :", region[1]);
+    DEBUG_VALUE("Depth :" , region[2]);
+    DEBUG_VALUE("Row pitch is: ", _rowPitch);
+
+    DEBUG_STRING("Image Origin:");
+    DEBUG_VALUE("Width :" , origin[0]);
+    DEBUG_VALUE("Height :", origin[1]);
+    DEBUG_VALUE("Depth :" , origin[2]);
+
     if(blocking)
-        std::cout<<"\nBLOCKING READ\n";
+        DEBUG_STRING("BLOCKING READ");
+
     err = clEnqueueReadImage(*_pQueue, _memory, blocking,
                              origin, region, _rowPitch, 0,
                              hostMem, 0, NULL, NULL);

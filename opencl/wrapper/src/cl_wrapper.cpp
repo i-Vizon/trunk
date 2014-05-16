@@ -150,14 +150,13 @@ Image2D *CLSetup::createImage2D(const size_t width, const size_t height, const c
 //                    size_t                  /* image_row_pitch */,
 //                    void *                  /* host_ptr */,
 //                    cl_int *                /* errcode_ret */)
-    std::cout<<"\n=====>Image2D flags:"<<flags<<"\n";
+    DEBUG_VALUE("Image2D flags:",flags);
     im2d = clCreateImage2D(_context,
                            flags,format,
                            width, height,
                            rowPitch,
                            hostMem, &_status);
-
-    printf("\n1. Image2D im2d create: %d",im2d);
+    DEBUG_VALUE("1. Image2D im2d create:",im2d);
     DEBUG_CL(_status);
     Image2D* ret = new Image2D(im2d, &_queue, rowPitch);
     return ret;

@@ -97,6 +97,12 @@ INCLUDEPATH += $$STDCPLUS/file_operation/
 #    QMAKE_EXTRA_TARGETS += first copydata
 #}
 
+########################################################################
+#   Copy this section and replace the needed files of your project
+#
+#
+########################################################################
+
 #linuxPC {
 #    copydata.commands = $(COPY_DIR) ../../image_convolution.cl $$DATA/shiva2.jpg $$OUT_PWD
 #    first.depends = $(first) copydata
