@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * =============================================================================
 */
 
-#define USE_CAMERA 0
+#define USE_CAMERA 1
 
 #include <cl_wrapper.hpp>
 #include <cv_wrapper.h>
