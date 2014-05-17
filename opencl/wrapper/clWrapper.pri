@@ -56,6 +56,8 @@ SOURCES += $$COMMON/src/iv_common.cpp \
 
 INCLUDEPATH += $$COMMON/inc/
 
+LIBS += -lrt
+
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>OpenCL
 
 OPENCL          = $$IVIZON_TRUNK/opencl

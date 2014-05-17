@@ -131,7 +131,6 @@ public:
 
 protected:
     size_t _rowPitch;
-    cl_int _status;
 
 private:
 };

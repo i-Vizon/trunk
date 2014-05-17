@@ -160,7 +160,7 @@ public:
     virtual ~Buffer()
     {
         clReleaseMemObject(_memory);
-        std::cout<<"\nReleasing GPU Memory Buffers\n\n\n";
+        DEBUG_STRING("Releasing GPU Memory Buffers");
     }
 
 protected:

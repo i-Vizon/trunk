@@ -91,7 +91,7 @@ void iv::Image2D::read(void *hostMem, const size_t origin[], const size_t region
                              origin, region, _rowPitch, 0,
                              hostMem, 0, NULL, NULL);
 
-    DEBUG_CL(_status);
+    DEBUG_CL(err);
 }
 
 
@@ -111,7 +111,7 @@ void iv::Image2D:: write(void *hostMem, const size_t origin[], const size_t regi
     err = clEnqueueWriteImage(*_pQueue, _memory, blocking, origin,
                               region, _rowPitch, 0,
                               hostMem, 0, NULL, NULL);
-    DEBUG_CL(_status);
+    DEBUG_CL(err);
 }
 
 
@@ -120,7 +120,7 @@ void *iv::Image2D::map(cl_map_flags flags, const size_t size[], const size_t off
     size_t slicePitch;
     cl_int err = 0;
     void* ret = clEnqueueMapImage(*_pQueue, _memory, blocking, flags, offset, size, &_rowPitch, &slicePitch, 0, NULL, NULL, &err);
-    DEBUG_CL(_status);
+    DEBUG_CL(err);
     return ret;
 }
 
@@ -129,7 +129,7 @@ void iv::Image2D::copyToBuffer(iv::Buffer &dst, const size_t size[], const size_
 {
     cl_int err = 0;
     err = clEnqueueCopyImageToBuffer(*_pQueue, _memory, dst.getMem(), srcOffset, size, dstOffset, 0, NULL, NULL);
-    DEBUG_CL(_status);
+    DEBUG_CL(err);
 }
 
 
@@ -138,12 +138,12 @@ void *iv::Image2D::getInfo(const cl_image_info paramName)
     cl_int err = 0;
     size_t size;
     err = clGetImageInfo (_memory, paramName, 0, NULL, &size);
-    DEBUG_CL(_status);
+    DEBUG_CL(err);
 
     if(size > 0) {
         void* info = malloc(size);
         err = clGetImageInfo (_memory, paramName, size, info, &size);
-        DEBUG_CL(_status);
+        DEBUG_CL(err);
         return info;
     }
     else return NULL;

@@ -74,6 +74,7 @@ int main(int argc, char* argv[])
 #if USE_CAMERA
     //============================= CV Setup
     cv::VideoCapture cap(-1);
+    //cv::VideoCapture cap("/home/satyam/Desktop/dump/TheDictator.avi");
     cv::Mat previousFrame;
 
     int width, height, step;
@@ -126,7 +127,7 @@ int main(int argc, char* argv[])
                                                    CL_MEM_WRITE_ONLY);
 
     float scale = 10;
-    float offset = 5;
+    float offset = 1;
     float lambda = 0.0025;
     float threshold = 1.0;
 
@@ -144,7 +145,7 @@ int main(int argc, char* argv[])
                 ->pArg(devFrameBuffer2->getMem())
                 ->pArg(devFrameResult->getMem())
                 ->pArg(scale)
-                ->pArg(offset)
+                ->pArg(offset   )
                 ->pArg(lambda)
                 ->pArg(threshold);
         kl->run();
@@ -158,6 +159,10 @@ int main(int argc, char* argv[])
 
         currentFrame.copyTo(previousFrame);
     }
+    delete devFrameBuffer1;
+    delete devFrameBuffer2;
+    delete devFrameResult;
+
 #else
     //============================= CV Setup
     cv::Mat pngFile1;
@@ -220,6 +225,7 @@ int main(int argc, char* argv[])
                                               &pngFormat,
                                               CL_MEM_WRITE_ONLY);
 
+    pngBuffer1->write(pngFile1.data, origin, region);
     pngBuffer2->write(pngFile2.data, origin, region); // To test the write API
 
     float scale = 10;
@@ -249,3 +255,11 @@ int main(int argc, char* argv[])
 
 #endif
 }
+
+
+
+
+
+
+
+
